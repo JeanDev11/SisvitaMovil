@@ -11,6 +11,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.fisi.sisvita.ui.components.AppScaffoldComponent
+import com.fisi.sisvita.ui.screens.HelpMeScreen
 import com.fisi.sisvita.ui.theme.SisvitaTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,7 +21,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SisvitaTheme {
-
+                //HelpMeScreen()
+                AppScaffoldComponent(
+                    userName = "Linna Jimenez",
+                    onLogout = {}
+                )
             }
         }
     }
@@ -29,6 +35,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun GreetingPreview() {
     SisvitaTheme {
-
+        HelpMeScreen()
     }
 }
