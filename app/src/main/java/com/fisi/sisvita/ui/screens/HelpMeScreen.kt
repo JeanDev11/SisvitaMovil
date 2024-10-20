@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -32,7 +31,7 @@ fun HelpMeScreen(){
     val pagerState = rememberPagerState(pageCount = { 4 })
 
     Column(
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primary),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center
 
     ) {
@@ -67,7 +66,7 @@ fun HelpMeScreen(){
 fun StepCard(imageResource: Int, description: String){
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondary,
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
         ),
         modifier = Modifier
             .fillMaxWidth()
@@ -98,7 +97,7 @@ fun StepCard(imageResource: Int, description: String){
 fun StepCardWithCamera(imageResource: Int, description: String) {
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondary,
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
         ),
         modifier = Modifier
             .fillMaxWidth()
@@ -161,7 +160,7 @@ fun StepIndicator(currentStep: Int, totalSteps: Int) {
                     .size(14.dp)
                     .padding(4.dp)
                     .clip(CircleShape)
-                    .background(if (i == currentStep) MaterialTheme.colorScheme.secondary else Color(0xFFD9D9D9))
+                    .background(if (i == currentStep) MaterialTheme.colorScheme.primaryContainer else Color(0xFFD9D9D9))
             )
         }
     }
