@@ -1,33 +1,27 @@
 package com.fisi.sisvita.ui.screens
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
 import android.content.res.AssetFileDescriptor
 import android.content.res.AssetManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
 import android.graphics.YuvImage
-import android.os.Bundle
 import android.util.Log
-import android.util.Size
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.*
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
 import com.fisi.sisvita.R
+import com.fisi.sisvita.ui.theme.SisvitaTheme
 import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
 import org.opencv.core.*
@@ -77,55 +71,40 @@ fun initializeCameraScreen(context: Context) {
 }
 
 @Composable
-fun CameraPreviewScreen() {
-    val context = LocalContext.current
-    var hasCameraPermission by remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED
-        )
-    }
-
+fun CameraScreen() {
     var processedBitmap by remember { mutableStateOf<Bitmap?>(null) }
-    val cameraPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        hasCameraPermission = granted
-    }
 
-    LaunchedEffect(key1 = hasCameraPermission) {
-        if (!hasCameraPermission) {
-            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-        }
-    }
-
-    if (hasCameraPermission) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
-        ) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        if (processedBitmap == null) {
             AndroidView(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f / 1f),
+                    .fillMaxSize(),
                 factory = { ctx ->
-                    val previewView = androidx.camera.view.PreviewView(ctx)
+                    val previewView = PreviewView(ctx).apply {
+                        implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+                        scaleType = PreviewView.ScaleType.FILL_CENTER
+                    }
+
                     val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
                     cameraProviderFuture.addListener({
                         val cameraProvider = cameraProviderFuture.get()
-                        val preview = Preview.Builder().build().also {
-                            it.setSurfaceProvider(previewView.surfaceProvider)
-                        }
+
+                        val preview = Preview.Builder()
+                            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                            .build()
+                            .also {
+                                it.setSurfaceProvider(previewView.surfaceProvider)
+                            }
 
                         val imageAnalysis = ImageAnalysis.Builder()
-                            .setTargetResolution(Size(640, 480))
+                            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
                             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                            .build().also {
+                            .build()
+                            .also {
                                 it.setAnalyzer(cameraExecutor) { imageProxy ->
                                     processFrame(imageProxy) { bitmap ->
                                         processedBitmap = bitmap
@@ -142,8 +121,9 @@ fun CameraPreviewScreen() {
                         try {
                             cameraProvider.unbindAll()
                             cameraProvider.bindToLifecycle(
-                                context as androidx.lifecycle.LifecycleOwner,
+                                ctx as LifecycleOwner,
                                 cameraSelector,
+                                preview,
                                 imageAnalysis
                             )
                         } catch (exc: Exception) {
@@ -154,21 +134,15 @@ fun CameraPreviewScreen() {
                     previewView
                 }
             )
-
-            Spacer(modifier = Modifier.height(5.dp))
-
-            processedBitmap?.let { bitmap ->
-                Image(
-                    bitmap = bitmap.asImageBitmap(),
-                    contentDescription = "Fotograma procesado",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f / 1f)
-                )
-            }
+        } else {
+            Image(
+                bitmap = processedBitmap!!.asImageBitmap(),
+                contentDescription = "Fotograma procesado",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .align(Alignment.Center)
+            )
         }
-    } else {
-        Text("Permiso de cámara denegado")
     }
 }
 
