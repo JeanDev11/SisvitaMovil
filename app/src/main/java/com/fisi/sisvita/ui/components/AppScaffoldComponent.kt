@@ -12,15 +12,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.fisi.sisvita.R
-import com.fisi.sisvita.ui.screens.HelpMeScreen
-import com.fisi.sisvita.ui.screens.HomeScreen
+import com.fisi.sisvita.ui.navigation.AppNavHost
 import com.fisi.sisvita.ui.theme.SisvitaTheme
 import kotlinx.coroutines.launch
 
@@ -28,6 +27,7 @@ import kotlinx.coroutines.launch
 fun AppScaffoldComponent(
     userName: String,
     onLogout: () -> Unit,
+    navController: NavHostController
 ) {
     // Estado del NavigationDrawer
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -35,6 +35,20 @@ fun AppScaffoldComponent(
 
     // Estado para la pantalla seleccionada
     var selectedScreen by remember { mutableStateOf("Inicio") }
+
+    // Observar el estado de la ruta actual y actualizar el selectedScreen
+    LaunchedEffect(navController) {
+        navController.currentBackStackEntryFlow.collect { backStackEntry ->
+            selectedScreen = when (backStackEntry.destination.route) {
+                "Inicio" -> "Inicio"
+                "Test" -> "Test"
+                "Necesito ayuda", "Camara" -> "Necesito ayuda"
+                "Historial" -> "Historial"
+                "Cuenta" -> "Cuenta"
+                else -> "Inicio"
+            }
+        }
+    }
 
     // Composición del layout con el NavigationDrawer y el TopBar
     ModalNavigationDrawer(
@@ -46,6 +60,11 @@ fun AppScaffoldComponent(
                 onItemClick = { screen ->
                     selectedScreen = screen
                     scope.launch { drawerState.close() } // Cerrar el drawer al seleccionar una opción
+                    navController.navigate(screen) {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 },
                 onLogout = onLogout
             )
@@ -61,11 +80,12 @@ fun AppScaffoldComponent(
                 )
             },
             content = { paddingValues ->
-                ScreenContent(
-                    selectedScreen = selectedScreen,
-                    paddingValues = paddingValues,
-                    onHelpMeClick = { selectedScreen = "Necesito ayuda" }
-                )
+                AppNavHost(navController = navController, paddingValues = paddingValues,)
+//                ScreenContent(
+//                    selectedScreen = selectedScreen,
+//                    paddingValues = paddingValues,
+//                    onHelpMeClick = { selectedScreen = "Necesito ayuda" }
+//                )
             }
         )
     }
@@ -201,30 +221,29 @@ fun NavigationDrawerComponent(
     }
 }
 
-@Composable
-fun ScreenContent(
-    selectedScreen: String,
-    paddingValues: PaddingValues,
-    onHelpMeClick: () -> Unit
-) {
-    // Mostrar el contenido correspondiente según la pantalla seleccionada
-    when (selectedScreen) {
-        "Inicio" -> HomeScreen(paddingValues, onHelpMeClick)
-        "Test" -> HomeScreen(paddingValues, onHelpMeClick)
-        "Necesito ayuda" -> HelpMeScreen()
-        "Historial" -> HomeScreen(paddingValues, onHelpMeClick)
-        "Cuenta" -> HomeScreen(paddingValues, onHelpMeClick)
-    }
-}
+//@Composable
+//fun ScreenContent(
+//    selectedScreen: String,
+//    paddingValues: PaddingValues,
+//    onHelpMeClick: () -> Unit
+//) {
+//    // Mostrar el contenido correspondiente según la pantalla seleccionada
+//    when (selectedScreen) {
+//        "Inicio" -> HomeScreen(paddingValues, onHelpMeClick)
+//        "Test" -> HomeScreen(paddingValues, onHelpMeClick)
+//        "Necesito ayuda" -> HelpMeScreen()
+//        "Historial" -> HomeScreen(paddingValues, onHelpMeClick)
+//        "Cuenta" -> HomeScreen(paddingValues, onHelpMeClick)
+//    }
+//}
 
 @Preview
 @Composable
 fun AppScaffoldPreview() {
     SisvitaTheme(darkTheme = false) {
-        AppScaffoldComponent(
-            userName = "Linna Jimenez",
-            onLogout = {}
-        )
+//        AppScaffoldComponent(
+//            userName = "Linna Jimenez",
+//            onLogout = {}
+//        )
     }
-
 }

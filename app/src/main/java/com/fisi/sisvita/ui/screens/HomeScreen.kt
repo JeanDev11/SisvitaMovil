@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.fisi.sisvita.R
 import com.fisi.sisvita.data.model.Test
 import com.fisi.sisvita.ui.theme.SisvitaTheme
@@ -41,7 +42,7 @@ import com.fisi.sisvita.ui.theme.SisvitaTheme
 @Composable
 fun HomeScreen(
     paddingValues: PaddingValues,
-    onHelpMeClick: () -> Unit
+    navController: NavController,
 ) {
     Column(
         modifier = Modifier
@@ -52,7 +53,7 @@ fun HomeScreen(
     ) {
         Welcome()
         TestAdd()
-        HelpMeAdd(onHelpMeClick)
+        HelpMeAdd(navController = navController)
     }
 }
 
@@ -170,7 +171,7 @@ fun TestCard(test: Test) {
 
 @Composable
 fun HelpMeAdd(
-    onHelpMeClick: () -> Unit
+    navController: NavController
 ){
     Spacer(modifier = Modifier.height(16.dp))
     Text(
@@ -218,7 +219,7 @@ fun HelpMeAdd(
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
-                    onClick = onHelpMeClick,
+                    onClick = { navController.navigate("Necesito ayuda") },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
                     )
@@ -234,6 +235,6 @@ fun HelpMeAdd(
 @Composable
 fun HomeScreenPreview() {
     SisvitaTheme(darkTheme = false) {
-        HomeScreen(paddingValues = PaddingValues(0.dp), onHelpMeClick = {})
+        //HomeScreen(paddingValues = PaddingValues(0.dp), onHelpMeClick = {})
     }
 }

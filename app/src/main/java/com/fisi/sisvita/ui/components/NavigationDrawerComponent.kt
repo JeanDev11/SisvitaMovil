@@ -92,7 +92,7 @@ fun NavigationDrawerContent(
             }
         },
         content = {
-            // Aquí va el contenido principal de tu aplicación
+            // Aquí va el contenido principal
         }
     )
 }
@@ -102,11 +102,10 @@ fun NavigationDrawerContent(
 @Composable
 fun PreviewNavigationDrawer() {
     SisvitaTheme(darkTheme = false) {
-        NavigationDrawerContent(
-            userName = "Linna Jimenez",
-            onItemClick = {},
-            onLogout = {}
-        )
+//        NavigationDrawerContent(
+//            userName = "Linna Jimenez",
+//            onItemClick = {},
+//            onLogout = {}
+//        )
     }
-
 }

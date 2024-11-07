@@ -22,12 +22,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.fisi.sisvita.R
 import com.fisi.sisvita.ui.theme.SisvitaTheme
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HelpMeScreen(){
+fun HelpMeScreen(navController: NavController){
     val pagerState = rememberPagerState(pageCount = { 4 })
 
     Column(
@@ -53,7 +54,8 @@ fun HelpMeScreen(){
                 )
                 3 -> StepCardWithCamera(
                     imageResource = R.drawable.ic_step4,
-                    description = "Recuerda que es un espacio seguro para compartir cómo te sientes."
+                    description = "Recuerda que es un espacio seguro para compartir cómo te sientes.",
+                    navController = navController
                 )
             }
         }
@@ -74,7 +76,9 @@ fun StepCard(imageResource: Int, description: String){
     ){
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth().padding(20.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
         ){
             Image(
                 painter = painterResource(imageResource),
@@ -88,13 +92,12 @@ fun StepCard(imageResource: Int, description: String){
                 color = MaterialTheme.colorScheme.onPrimary
             )
             Spacer(modifier = Modifier.height(48.dp))
-
         }
     }
 }
 
 @Composable
-fun StepCardWithCamera(imageResource: Int, description: String) {
+fun StepCardWithCamera(imageResource: Int, description: String, navController: NavController) {
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -128,7 +131,7 @@ fun StepCardWithCamera(imageResource: Int, description: String) {
 
             IconButton(
                 onClick = {
-                    // Acción para abrir la cámara
+                    navController.navigate("Camara")
                 },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -137,7 +140,7 @@ fun StepCardWithCamera(imageResource: Int, description: String) {
                     .background(MaterialTheme.colorScheme.surface)
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_camera), // Cambia esto por el ícono de cámara
+                    painter = painterResource(id = R.drawable.ic_camera),
                     contentDescription = "Abrir cámara",
                     tint = MaterialTheme.colorScheme.onSecondary
                 )
@@ -160,7 +163,11 @@ fun StepIndicator(currentStep: Int, totalSteps: Int) {
                     .size(14.dp)
                     .padding(4.dp)
                     .clip(CircleShape)
-                    .background(if (i == currentStep) MaterialTheme.colorScheme.primaryContainer else Color(0xFFD9D9D9))
+                    .background(
+                        if (i == currentStep) MaterialTheme.colorScheme.primaryContainer else Color(
+                            0xFFD9D9D9
+                        )
+                    )
             )
         }
     }
@@ -170,7 +177,7 @@ fun StepIndicator(currentStep: Int, totalSteps: Int) {
 @Composable
 fun HelpMePreview() {
     SisvitaTheme(darkTheme = false) {
-        HelpMeScreen()
+        //HelpMeScreen()
 //        StepCard(imageResource = R.drawable.ic_step1, description = "Asegúrate de estar en un lugar bien iluminado y tranquilo.")
     }
 }
