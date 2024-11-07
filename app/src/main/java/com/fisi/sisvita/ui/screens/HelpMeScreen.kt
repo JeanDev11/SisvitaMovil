@@ -1,5 +1,6 @@
 package com.fisi.sisvita.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,6 +15,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -74,7 +79,9 @@ fun StepCard(imageResource: Int, description: String){
     ){
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth().padding(20.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
         ){
             Image(
                 painter = painterResource(imageResource),
@@ -95,6 +102,8 @@ fun StepCard(imageResource: Int, description: String){
 
 @Composable
 fun StepCardWithCamera(imageResource: Int, description: String) {
+    var showCameraPreview by remember { mutableStateOf(false) }
+    CameraPreviewScreen()
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -128,7 +137,8 @@ fun StepCardWithCamera(imageResource: Int, description: String) {
 
             IconButton(
                 onClick = {
-                    // Acción para abrir la cámara
+                    showCameraPreview = !showCameraPreview
+                    Log.e("asdf","Presionado")
                 },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -141,6 +151,9 @@ fun StepCardWithCamera(imageResource: Int, description: String) {
                     contentDescription = "Abrir cámara",
                     tint = MaterialTheme.colorScheme.onSecondary
                 )
+                if (showCameraPreview) {
+                    CameraPreviewScreen()  // Llama a CameraPreviewScreen aquí
+                }
             }
         }
     }
@@ -160,7 +173,11 @@ fun StepIndicator(currentStep: Int, totalSteps: Int) {
                     .size(14.dp)
                     .padding(4.dp)
                     .clip(CircleShape)
-                    .background(if (i == currentStep) MaterialTheme.colorScheme.primaryContainer else Color(0xFFD9D9D9))
+                    .background(
+                        if (i == currentStep) MaterialTheme.colorScheme.primaryContainer else Color(
+                            0xFFD9D9D9
+                        )
+                    )
             )
         }
     }

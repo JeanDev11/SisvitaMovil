@@ -51,6 +51,21 @@ android {
 
 dependencies {
 
+    // Dependencias de CameraX
+    val camerax_version = "1.3.4"
+    implementation ("androidx.camera:camera-core:${camerax_version}")
+    implementation ("androidx.camera:camera-camera2:${camerax_version}")
+    implementation ("androidx.camera:camera-lifecycle:${camerax_version}")
+    implementation ("androidx.camera:camera-view:${camerax_version}")
+
+    implementation ("com.quickbirdstudios:opencv-contrib:3.4.13")
+
+    implementation("org.tensorflow:tensorflow-lite-metadata:0.1.0-rc1")
+    implementation("org.tensorflow:tensorflow-lite-gpu:2.2.0")
+    implementation("org.tensorflow:tensorflow-lite-support:0.1.0")
+    implementation("org.tensorflow:tensorflow-lite-task-vision:0.1.0")
+    implementation("org.tensorflow:tensorflow-lite-task-text:0.1.0")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
