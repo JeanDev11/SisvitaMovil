@@ -3,6 +3,9 @@ package com.fisi.sisvita
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,6 +18,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
+import com.fisi.sisvita.data.model.UserSession
+import com.fisi.sisvita.data.model.UserSession.userName
 import com.fisi.sisvita.ui.components.AppScaffoldComponent
 import com.fisi.sisvita.ui.screens.ErrorDialog
 import com.fisi.sisvita.ui.screens.LoginScreen
@@ -57,12 +62,14 @@ class MainActivity : ComponentActivity() {
             SisvitaTheme {
                 var isLoggedIn by remember { mutableStateOf(false) }
                 val navController = rememberNavController()
+                Log.d("MainActivity", "After login PersonId: ${UserSession.personId.value}, UserName: ${UserSession.userName.value}")
                 if (isLoggedIn) {
                     AppScaffoldComponent(
-                        userName = "Linna Jimenez",
-                        onLogout = { isLoggedIn = false },
-                        navController = navController
-                    )
+                            userName = UserSession.userName.value ?: "Unknown User",
+                            onLogout = { isLoggedIn = false },
+                            navController = navController
+                        )
+                    Log.d("MainActivity", "PersonId: ${UserSession.personId.value}, UserName: ${UserSession.userName.value}")
                     initializeCameraScreen(this)
                 } else {
                     var showErrorDialog by remember { mutableStateOf(false) }
@@ -74,18 +81,18 @@ class MainActivity : ComponentActivity() {
                     LoginScreen(
                         onLogin = { username, password ->
                             login(username, password) { success ->
-                                if (success) {
-                                    isLoggedIn = true
-                                } else {
-                                   showErrorDialog = true
+                                Handler(Looper.getMainLooper()).post {
+                                    if (success) {
+                                        isLoggedIn = true // Esto forzará una recomposición
+                                    } else {
+                                        showErrorDialog = true
+                                    }
                                 }
                             }
-                            // Handle login logic here
-                            // If login is successful, set isLoggedIn to true
                             isLoggedIn = true
                         },
                         onSignUp = {
-                            // Handle sign up navigation here
+                            // RegisterScreen
                         }
                     )
                 }
@@ -125,9 +132,17 @@ private fun login(username: String, password: String, callback: (Boolean) -> Uni
                     val json1 = JSONObject(responseBody)
                     val message = json1.optString("message")
                     val status = json1.optInt("status")
-
+                    val data = json1.optJSONObject("data")
+                    val personId = data?.optString("id_person")
+                    val userName = data?.optString("userName")
+                    Log.d("Login", "Status: $status, Message: $message, PersonId: $personId, UserName: $userName")
                     if (status == 200 && message == "Login successful") {
-                        callback(true)
+                        Handler(Looper.getMainLooper()).post {
+                            UserSession.personId.value = personId
+                            UserSession.userName.value = userName
+                            Log.d("Login", "PersonId: ${UserSession.personId.value}, UserName: ${UserSession.userName.value}")
+                            callback(true)
+                        }
                     } else {
                         callback(false)
                     }

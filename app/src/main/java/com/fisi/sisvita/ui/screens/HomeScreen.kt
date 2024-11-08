@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.fisi.sisvita.R
 import com.fisi.sisvita.data.model.Test
+import com.fisi.sisvita.data.model.UserSession
 import com.fisi.sisvita.ui.theme.SisvitaTheme
 
 @Composable
@@ -73,7 +74,7 @@ fun Welcome(){
                 .padding(16.dp)
         ) {
             Text(
-                text = "Hola, Linna",
+                text = "Hola, ${ UserSession.userName.value}!",
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onPrimary,
             )
