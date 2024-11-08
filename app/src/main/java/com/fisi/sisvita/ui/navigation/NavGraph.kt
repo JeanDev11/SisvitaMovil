@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.fisi.sisvita.ui.screens.CameraScreen
+import com.fisi.sisvita.ui.screens.camera.CameraScreen
 import com.fisi.sisvita.ui.screens.HelpMeScreen
 import com.fisi.sisvita.ui.screens.HomeScreen
 import com.fisi.sisvita.ui.screens.ResultsScreen
@@ -17,7 +17,7 @@ fun AppNavHost(navController: NavHostController, paddingValues: PaddingValues,) 
             HomeScreen(paddingValues, navController)
         }
         composable("Test") {
-           ResultsScreen()
+            ResultsScreen()
         }
         composable("Necesito ayuda") {
             HelpMeScreen(navController = navController)

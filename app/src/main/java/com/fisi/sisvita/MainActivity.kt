@@ -15,7 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.fisi.sisvita.ui.components.AppScaffoldComponent
-import com.fisi.sisvita.ui.screens.initializeCameraScreen
+import com.fisi.sisvita.ui.screens.camera.initializeCameraScreen
 import com.fisi.sisvita.ui.theme.SisvitaTheme
 
 class MainActivity : ComponentActivity() {

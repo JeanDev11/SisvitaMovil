@@ -1,4 +1,4 @@
-package com.fisi.sisvita.ui.screens
+package com.fisi.sisvita.ui.screens.camera
 
 import android.content.Context
 import android.content.res.AssetFileDescriptor
@@ -12,10 +12,18 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -71,13 +79,16 @@ fun initializeCameraScreen(context: Context) {
 }
 
 @Composable
-fun CameraScreen() {
+fun CameraScreen(
+
+) {
     var processedBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .statusBarsPadding()
+            .navigationBarsPadding()
     ) {
         if (processedBitmap == null) {
             AndroidView(
@@ -134,6 +145,13 @@ fun CameraScreen() {
                     previewView
                 }
             )
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxSize()
+//                    .background(Color.Gray)
+//            ) {
+//                // Placeholder para representar el espacio de la cámara.
+//            }
         } else {
             Image(
                 bitmap = processedBitmap!!.asImageBitmap(),
@@ -143,8 +161,72 @@ fun CameraScreen() {
                     .align(Alignment.Center)
             )
         }
+
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            IconButton(
+                onClick = {
+
+                },
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_flash_off),
+                    contentDescription = "flash",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            IconButton(
+                onClick = {
+
+                },
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_stop),
+                    contentDescription = "flash",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            IconButton(
+                onClick = {
+
+                },
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_flip_camera),
+                    contentDescription = "flash",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
     }
 }
+
+//@Preview
+//@Composable
+//fun CameraScreenPreview() {
+//    SisvitaTheme(darkTheme = false) {
+//        CameraScreen()
+//    }
+//}
 
 private fun processFrame(imageProxy: ImageProxy, onFrameCaptured: (Bitmap) -> Unit) {
     try {
@@ -510,3 +592,5 @@ class FacialExpressionRecognition(
         return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
     }
 }
+
+
