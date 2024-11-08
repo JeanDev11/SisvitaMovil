@@ -10,13 +10,25 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.fisi.sisvita.ui.components.AppScaffoldComponent
+import com.fisi.sisvita.ui.screens.ErrorDialog
+import com.fisi.sisvita.ui.screens.LoginScreen
 import com.fisi.sisvita.ui.screens.initializeCameraScreen
 import com.fisi.sisvita.ui.theme.SisvitaTheme
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import org.json.JSONObject
+import java.io.IOException
 
 class MainActivity : ComponentActivity() {
     private val cameraPermissionLauncher = registerForActivityResult(
@@ -43,16 +55,88 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             SisvitaTheme {
+                var isLoggedIn by remember { mutableStateOf(false) }
                 val navController = rememberNavController()
-                AppScaffoldComponent(
-                    userName = "Linna Jimenez",
-                    onLogout = {},
-                    navController = navController
-                )
-                initializeCameraScreen(this) // Pasamos 'this' como contexto
+                if (isLoggedIn) {
+                    AppScaffoldComponent(
+                        userName = "Linna Jimenez",
+                        onLogout = { isLoggedIn = false },
+                        navController = navController
+                    )
+                    initializeCameraScreen(this)
+                } else {
+                    var showErrorDialog by remember { mutableStateOf(false) }
+
+                    if (showErrorDialog) {
+                        ErrorDialog { showErrorDialog = false }
+                    }
+
+                    LoginScreen(
+                        onLogin = { username, password ->
+                            login(username, password) { success ->
+                                if (success) {
+                                    isLoggedIn = true
+                                } else {
+                                   showErrorDialog = true
+                                }
+                            }
+                            // Handle login logic here
+                            // If login is successful, set isLoggedIn to true
+                            isLoggedIn = true
+                        },
+                        onSignUp = {
+                            // Handle sign up navigation here
+                        }
+                    )
+                }
             }
         }
     }
+}
+
+private fun login(username: String, password: String, callback: (Boolean) -> Unit) {
+    val client = OkHttpClient()
+    val json = JSONObject().apply {
+        put("username", username)
+        put("password", password)
+        put("role", 2)
+    }
+
+    val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
+    val request = Request.Builder()
+        .url("https://dsm-backend.onrender.com/login")
+        .post(requestBody)
+        .build()
+
+    client.newCall(request).enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            callback(false)
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            response.use {
+                if (!it.isSuccessful) {
+                    callback(false)
+                    return
+                }
+
+                val responseBody = it.body?.string()
+                if (responseBody != null) {
+                    val json1 = JSONObject(responseBody)
+                    val message = json1.optString("message")
+                    val status = json1.optInt("status")
+
+                    if (status == 200 && message == "Login successful") {
+                        callback(true)
+                    } else {
+                        callback(false)
+                    }
+                } else {
+                    callback(false)
+                }
+            }
+        }
+    })
 }
 
 @Preview(showBackground = true)
