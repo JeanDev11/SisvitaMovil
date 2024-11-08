@@ -1,3 +1,4 @@
+// MainActivity.kt
 package com.fisi.sisvita
 
 import android.Manifest
@@ -19,7 +20,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.fisi.sisvita.data.model.UserSession
-import com.fisi.sisvita.data.model.UserSession.userName
 import com.fisi.sisvita.ui.components.AppScaffoldComponent
 import com.fisi.sisvita.ui.screens.ErrorDialog
 import com.fisi.sisvita.ui.screens.LoginScreen
@@ -65,10 +65,10 @@ class MainActivity : ComponentActivity() {
                 Log.d("MainActivity", "After login PersonId: ${UserSession.personId.value}, UserName: ${UserSession.userName.value}")
                 if (isLoggedIn) {
                     AppScaffoldComponent(
-                            userName = UserSession.userName.value ?: "Unknown User",
-                            onLogout = { isLoggedIn = false },
-                            navController = navController
-                        )
+                        userName = UserSession.userName.value ?: "Unknown User",
+                        onLogout = { isLoggedIn = false },
+                        navController = navController
+                    )
                     Log.d("MainActivity", "PersonId: ${UserSession.personId.value}, UserName: ${UserSession.userName.value}")
                     initializeCameraScreen(this)
                 } else {
@@ -89,7 +89,6 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             }
-                            isLoggedIn = true
                         },
                         onSignUp = {
                             // RegisterScreen
