@@ -38,13 +38,14 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
+import androidx.navigation.NavController
 import com.fisi.sisvita.R
 import com.fisi.sisvita.ui.components.LottieAnimationComponent
 import com.fisi.sisvita.ui.theme.SisvitaTheme
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun HelpMeScreen() {
+fun HelpMeScreen(navController: NavController){
     val pagerState = rememberPagerState(pageCount = { 4 })
 
     Column(
@@ -73,7 +74,8 @@ fun HelpMeScreen() {
 
                 3 -> StepCardWithCamera(
                     imageResource = R.drawable.ic_step4,
-                    description = "Recuerda que es un espacio seguro para compartir cómo te sientes."
+                    description = "Recuerda que es un espacio seguro para compartir cómo te sientes.",
+                    navController = navController
                 )
             }
         }
@@ -110,13 +112,12 @@ fun StepCard(imageResource: Int, description: String) {
                 color = MaterialTheme.colorScheme.onPrimary
             )
             Spacer(modifier = Modifier.height(48.dp))
-
         }
     }
 }
 
 @Composable
-fun StepCardWithCamera(imageResource: Int, description: String) {
+fun StepCardWithCamera(imageResource: Int, description: String, navController: NavController) {
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -150,7 +151,7 @@ fun StepCardWithCamera(imageResource: Int, description: String) {
 
             IconButton(
                 onClick = {
-                    // Acción para abrir la cámara
+                    navController.navigate("Camara")
                 },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -159,7 +160,7 @@ fun StepCardWithCamera(imageResource: Int, description: String) {
                     .background(MaterialTheme.colorScheme.surface)
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_camera), // Cambia esto por el ícono de cámara
+                    painter = painterResource(id = R.drawable.ic_camera),
                     contentDescription = "Abrir cámara",
                     tint = MaterialTheme.colorScheme.onSecondary
                 )
@@ -255,6 +256,7 @@ fun AnalyzingViewPreview() {
 @Composable
 fun HelpMePreview() {
     SisvitaTheme(darkTheme = false) {
-        HelpMeScreen()
+        //HelpMeScreen()
+//        StepCard(imageResource = R.drawable.ic_step1, description = "Asegúrate de estar en un lugar bien iluminado y tranquilo.")
     }
 }
