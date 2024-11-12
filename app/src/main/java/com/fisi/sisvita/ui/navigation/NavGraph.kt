@@ -22,7 +22,7 @@ fun AppNavHost(navController: NavHostController, paddingValues: PaddingValues,) 
             ResultsScreen(paddingValues)
         }
         composable("Necesito ayuda") {
-            HelpMeNavHost()
+            HelpMeNavHost(paddingValues)
         }
         composable("Historial") {
             HomeScreen(paddingValues, navController)
@@ -34,11 +34,11 @@ fun AppNavHost(navController: NavHostController, paddingValues: PaddingValues,) 
 }
 
 @Composable
-fun HelpMeNavHost() {
+fun HelpMeNavHost(paddingValues: PaddingValues) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "Steps") {
         composable("Steps") {
-            HelpMeScreen(navController = navController)
+            HelpMeScreen(navController)
         }
         composable("Rec") {
             CameraScreen()
@@ -47,7 +47,7 @@ fun HelpMeNavHost() {
             LoadingScreen()
         }
         composable("Result") {
-//            ResultScreen(navController)
+            ResultsScreen(paddingValues)
         }
         composable("Recommendations") {
 //            RecomendacionesScreen(navController)
