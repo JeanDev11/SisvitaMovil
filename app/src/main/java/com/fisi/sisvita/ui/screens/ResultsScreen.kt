@@ -21,10 +21,19 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import com.fisi.sisvita.ui.theme.SisvitaTheme
+import kotlin.math.cos
+import kotlin.math.sin
 
 
 @Composable
-fun ResultsScreen() {
+fun ResultsScreen(
+    paddingValues: PaddingValues,
+) {
     val emotionPercentages = remember { generateRandomEmotionPercentages() }
     val emotions = listOf("Alegría", "Tristeza", "Neutral", "Sorpresa", "Enojo", "Disgusto", "Miedo")
     val colors = listOf(
@@ -42,20 +51,31 @@ fun ResultsScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(paddingValues)
             .padding(16.dp),
-        verticalArrangement = Arrangement.Center // Centrar verticalmente
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Resultados de las emociones en un cuadro separado
+        Text(
+            text = "Resultados",
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.SemiBold
+            ),
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(16.dp))
         ResultCard(emotionPercentages, emotions, colors)
-
         Spacer(modifier = Modifier.height(16.dp))
-
-        // Gráfico de ansiedad en un cuadro más pequeño
         AnxietyLevelCard(anxietyLevel)
-
         Spacer(modifier = Modifier.height(16.dp))
-
-        // Recomendaciones en un cuadro un poco más grande
+        Text(
+            text = "Recomendaciones",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(16.dp))
         RecommendationCard()
     }
 }
@@ -64,26 +84,19 @@ fun ResultsScreen() {
 fun ResultCard(emotionPercentages: List<Float>, emotions: List<String>, colors: List<Color>) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF1F1F1)),
-        elevation = CardDefaults.cardElevation(8.dp)
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondary
+        ),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Start
         ) {
-            Text(
-                text = "Resultados del Análisis de Emociones",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -105,121 +118,213 @@ fun ResultCard(emotionPercentages: List<Float>, emotions: List<String>, colors: 
 }
 
 @Composable
-fun AnxietyLevelCard(level: Float) {
+fun AnxietyLevelCard(
+    level: Float,
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
-            .height(180.dp),
+            .height(200.dp)
+            ,
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF1F1F1)),
-        elevation = CardDefaults.cardElevation(8.dp)
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondary
+        ),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "Nivel de Ansiedad",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 8.dp)
+                text = "Nivel de ansiedad",
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
             )
 
-            // Gráfico semi-arco para el nivel de ansiedad
-            AnxietyLevelIndicator(level)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Canvas(
+                    modifier = Modifier
+                        .width(200.dp)
+                        .height(100.dp)
+                ) {
+                    val strokeWidth = 20.dp.toPx()
+
+                    // Arco de fondo
+                    drawArc(
+                        color = Color.LightGray.copy(alpha = 0.3f),
+                        startAngle = 180f,
+                        sweepAngle = 180f,
+                        useCenter = false,
+                        style = Stroke(
+                            width = strokeWidth,
+                            cap = StrokeCap.Round
+                        ),
+                        size = Size(size.width, size.height * 2)
+                    )
+
+                    // Arco de progreso
+                    drawArc(
+                        color = Color(0xFF53C4C2),
+                        startAngle = 180f,
+                        sweepAngle = 180f * (level / 100f),
+                        useCenter = false,
+                        style = Stroke(
+                            width = strokeWidth,
+                            cap = StrokeCap.Round
+                        ),
+                        size = Size(size.width, size.height * 2)
+                    )
+
+                    // Punto indicador
+                    val angle = Math.toRadians((180f + (180f * level / 100f)).toDouble())
+                    val radius = (size.width - strokeWidth) / 2 + 30f
+                    val center = Offset(size.width / 2, size.height)
+                    val x = center.x + (radius * cos(angle)).toFloat()
+                    val y = center.y + (radius * sin(angle)).toFloat()
+
+                    drawCircle(
+                        color = Color.White,
+                        radius = 15f,
+                        center = Offset(x, y),
+                        style = Stroke(width = 30f)
+                    )
+
+                    drawCircle(
+                        color = Color.Black,
+                        radius = 15f,
+                        center = Offset(x, y)
+                    )
+                }
+
+                Text(
+                    text = "${"%.1f".format(level)}%",
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        fontSize = 40.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = Modifier.offset(y = 30.dp)
+                )
+            }
         }
     }
 }
 
-@Composable
-fun AnxietyLevelIndicator(level: Float) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(120.dp)
-            .padding(8.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val width = size.width
-            val height = size.height
-            val radius = width / 2f
-            val center = Offset(width / 2f, height)
-
-            // Arco exterior (gráfico de fondo)
-            drawArc(
-                color = Color.Gray.copy(alpha = 0.3f),
-                startAngle = 180f,
-                sweepAngle = 180f,
-                useCenter = false,
-                size = androidx.compose.ui.geometry.Size(radius * 2f, radius * 2f),
-                style = Stroke(width = 20f)
-            )
-
-            // Arco de nivel de ansiedad (se dibuja en función del valor)
-            val sweepAngle = (180f * (level / 100f))
-            drawArc(
-                color = Color(0xFF4CAF50), // Verde
-                startAngle = 180f,
-                sweepAngle = sweepAngle,
-                useCenter = false,
-                size = androidx.compose.ui.geometry.Size(radius * 2f, radius * 2f),
-                style = Stroke(width = 20f)
-            )
-
-            // Línea de indicador
-            val angle = 180f + sweepAngle // Ajuste para que la aguja esté en la posición correcta
-            val needleX = center.x + radius * 0.8f * kotlin.math.cos(Math.toRadians(angle.toDouble())).toFloat()
-            val needleY = center.y + radius * 0.8f * kotlin.math.sin(Math.toRadians(angle.toDouble())).toFloat()
-
-            drawLine(
-                color = Color(0xFF4CAF50),
-                start = center,
-                end = Offset(needleX, needleY),
-                strokeWidth = 6f
-            )
-        }
-
-        // Mostrar el valor numérico del nivel de ansiedad
-        Text(
-            text = "${"%.1f".format(level)}%",
-            style = MaterialTheme.typography.titleLarge.copy(fontSize = 24.sp),
-            color = Color(0xFF4CAF50),
-            modifier = Modifier.align(Alignment.Center)
-        )
-    }
-}
+//@Composable
+//fun AnxietyLevelCard(level: Float) {
+//    Card(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(8.dp)
+//            .height(180.dp),
+//        shape = RoundedCornerShape(12.dp),
+//        colors = CardDefaults.cardColors(
+//            containerColor = MaterialTheme.colorScheme.secondary
+//        ),
+//        elevation = CardDefaults.cardElevation(8.dp)
+//    ) {
+//        Column(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(8.dp),
+//            horizontalAlignment = Alignment.CenterHorizontally
+//        ) {
+//            Text(
+//                text = "Nivel de Ansiedad",
+//                style = MaterialTheme.typography.titleMedium,
+//                color = MaterialTheme.colorScheme.onSurface,
+//                textAlign = TextAlign.Center
+//            )
+//
+//            // Gráfico semi-arco para el nivel de ansiedad
+//            AnxietyLevelIndicator(level)
+//        }
+//    }
+//}
+//
+//@Composable
+//fun AnxietyLevelIndicator(level: Float) {
+//    Box(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .height(120.dp)
+//            .padding(8.dp),
+//        contentAlignment = Alignment.BottomCenter
+//    ) {
+//        Canvas(modifier = Modifier.fillMaxSize()) {
+//            val width = size.width
+//            val height = size.height
+//            val radius = width / 2f
+//            val center = Offset(width / 2f, height)
+//
+//            // Arco exterior (gráfico de fondo)
+//            drawArc(
+//                color = Color.Gray.copy(alpha = 0.3f),
+//                startAngle = 180f,
+//                sweepAngle = 180f,
+//                useCenter = false,
+//                size = androidx.compose.ui.geometry.Size(radius * 2f, radius * 2f),
+//                style = Stroke(width = 20f)
+//            )
+//
+//            // Arco de nivel de ansiedad (se dibuja en función del valor)
+//            val sweepAngle = (180f * (level / 100f))
+//            drawArc(
+//                color = Color(0xFF4CAF50), // Verde
+//                startAngle = 180f,
+//                sweepAngle = sweepAngle,
+//                useCenter = false,
+//                size = androidx.compose.ui.geometry.Size(radius * 2f, radius * 2f),
+//                style = Stroke(width = 20f)
+//            )
+//
+//            // Línea de indicador
+//            val angle = 180f + sweepAngle // Ajuste para que la aguja esté en la posición correcta
+//            val needleX = center.x + radius * 0.8f * kotlin.math.cos(Math.toRadians(angle.toDouble())).toFloat()
+//            val needleY = center.y + radius * 0.8f * kotlin.math.sin(Math.toRadians(angle.toDouble())).toFloat()
+//
+//            drawLine(
+//                color = Color(0xFF4CAF50),
+//                start = center,
+//                end = Offset(needleX, needleY),
+//                strokeWidth = 6f
+//            )
+//        }
+//
+//        // Mostrar el valor numérico del nivel de ansiedad
+//        Text(
+//            text = "${"%.1f".format(level)}%",
+//            style = MaterialTheme.typography.titleLarge.copy(fontSize = 24.sp),
+//            color = Color(0xFF4CAF50),
+//            modifier = Modifier.align(Alignment.Center)
+//        )
+//    }
+//}
 
 @Composable
 fun RecommendationCard() {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
             .height(140.dp), // Aumentar el tamaño para que las recomendaciones se vean mejor
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF1F1F1)),
-        elevation = CardDefaults.cardElevation(8.dp)
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondary
+        ),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(16.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Start
         ) {
             Text(
-                text = "Recomendaciones:",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            Text(
                 text = "- Practica la respiración profunda.\n- Realiza ejercicio físico.\n- Escucha música relajante.",
-                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onBackground
             )
         }
@@ -271,5 +376,7 @@ fun generateRandomEmotionPercentages(): List<Float> {
 @Preview(showBackground = true)
 @Composable
 fun PreviewResultsScreen() {
-    ResultsScreen()
+    SisvitaTheme(darkTheme = false) {
+        ResultsScreen(paddingValues = PaddingValues(0.dp))
+    }
 }

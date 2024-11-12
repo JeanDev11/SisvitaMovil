@@ -45,39 +45,6 @@ import java.nio.channels.FileChannel
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-// Variables globales para el uso en las funciones
-private lateinit var cameraExecutor: ExecutorService
-private var faceCascade: CascadeClassifier? = null
-private var eyeCascade: CascadeClassifier? = null
-private var isUsingFrontCamera = true
-private lateinit var emotionModel: Interpreter
-private var facialExpressionRecognition: FacialExpressionRecognition? = null
-
-fun initializeCameraScreen(context: Context) {
-    cameraExecutor = Executors.newSingleThreadExecutor()
-    if (!OpenCVLoader.initDebug()) {
-        Log.e("OpenCV", "Unable to load OpenCV!")
-    } else {
-        Log.d("OpenCV", "OpenCV loaded Successfully!")
-        loadCascadeClassifier(context)
-        loadEyeCascade(context)
-    }
-
-    try {
-        val inputSize = 48
-        facialExpressionRecognition = FacialExpressionRecognition(
-            context.assets,
-            context,
-            "model.tflite",
-            inputSize
-        )
-        Log.e("CameraScreen", "Modelo cargado correctamente")
-    } catch (e: IOException) {
-        e.printStackTrace()
-        Log.e("CameraScreen", "Error al cargar el modelo")
-    }
-}
-
 @Composable
 fun CameraScreen(
 
@@ -91,60 +58,60 @@ fun CameraScreen(
             .navigationBarsPadding()
     ) {
         if (processedBitmap == null) {
-            AndroidView(
-                modifier = Modifier
-                    .fillMaxSize(),
-                factory = { ctx ->
-                    val previewView = PreviewView(ctx).apply {
-                        implementationMode = PreviewView.ImplementationMode.COMPATIBLE
-                        scaleType = PreviewView.ScaleType.FILL_CENTER
-                    }
-
-                    val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
-                    cameraProviderFuture.addListener({
-                        val cameraProvider = cameraProviderFuture.get()
-
-                        val preview = Preview.Builder()
-                            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-                            .build()
-                            .also {
-                                it.setSurfaceProvider(previewView.surfaceProvider)
-                            }
-
-                        val imageAnalysis = ImageAnalysis.Builder()
-                            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-                            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                            .build()
-                            .also {
-                                it.setAnalyzer(cameraExecutor) { imageProxy ->
-                                    processFrame(imageProxy) { bitmap ->
-                                        processedBitmap = bitmap
-                                    }
-                                }
-                            }
-
-                        val cameraSelector = if (isUsingFrontCamera) {
-                            CameraSelector.DEFAULT_FRONT_CAMERA
-                        } else {
-                            CameraSelector.DEFAULT_BACK_CAMERA
-                        }
-
-                        try {
-                            cameraProvider.unbindAll()
-                            cameraProvider.bindToLifecycle(
-                                ctx as LifecycleOwner,
-                                cameraSelector,
-                                preview,
-                                imageAnalysis
-                            )
-                        } catch (exc: Exception) {
-                            Log.e("CameraPreview", "Error al iniciar la cámara", exc)
-                        }
-                    }, ContextCompat.getMainExecutor(ctx))
-
-                    previewView
-                }
-            )
+//            AndroidView(
+//                modifier = Modifier
+//                    .fillMaxSize(),
+//                factory = { ctx ->
+//                    val previewView = PreviewView(ctx).apply {
+//                        implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+//                        scaleType = PreviewView.ScaleType.FILL_CENTER
+//                    }
+//
+//                    val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
+//                    cameraProviderFuture.addListener({
+//                        val cameraProvider = cameraProviderFuture.get()
+//
+//                        val preview = Preview.Builder()
+//                            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+//                            .build()
+//                            .also {
+//                                it.setSurfaceProvider(previewView.surfaceProvider)
+//                            }
+//
+//                        val imageAnalysis = ImageAnalysis.Builder()
+//                            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+//                            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+//                            .build()
+//                            .also {
+//                                it.setAnalyzer(cameraExecutor) { imageProxy ->
+//                                    processFrame(imageProxy) { bitmap ->
+//                                        processedBitmap = bitmap
+//                                    }
+//                                }
+//                            }
+//
+//                        val cameraSelector = if (isUsingFrontCamera) {
+//                            CameraSelector.DEFAULT_FRONT_CAMERA
+//                        } else {
+//                            CameraSelector.DEFAULT_BACK_CAMERA
+//                        }
+//
+//                        try {
+//                            cameraProvider.unbindAll()
+//                            cameraProvider.bindToLifecycle(
+//                                ctx as LifecycleOwner,
+//                                cameraSelector,
+//                                preview,
+//                                imageAnalysis
+//                            )
+//                        } catch (exc: Exception) {
+//                            Log.e("CameraPreview", "Error al iniciar la cámara", exc)
+//                        }
+//                    }, ContextCompat.getMainExecutor(ctx))
+//
+//                    previewView
+//                }
+//            )
 //            Box(
 //                modifier = Modifier
 //                    .fillMaxSize()
@@ -220,6 +187,39 @@ fun CameraScreen(
     }
 }
 
+// Variables globales para el uso en las funciones
+/*private lateinit var cameraExecutor: ExecutorService
+private var faceCascade: CascadeClassifier? = null
+private var eyeCascade: CascadeClassifier? = null
+private var isUsingFrontCamera = true
+private lateinit var emotionModel: Interpreter
+private var facialExpressionRecognition: FacialExpressionRecognition? = null
+
+fun initializeCameraScreen(context: Context) {
+    cameraExecutor = Executors.newSingleThreadExecutor()
+    if (!OpenCVLoader.initDebug()) {
+        Log.e("OpenCV", "Unable to load OpenCV!")
+    } else {
+        Log.d("OpenCV", "OpenCV loaded Successfully!")
+        loadCascadeClassifier(context)
+        loadEyeCascade(context)
+    }
+
+    try {
+        val inputSize = 48
+        facialExpressionRecognition = FacialExpressionRecognition(
+            context.assets,
+            context,
+            "model.tflite",
+            inputSize
+        )
+        Log.e("CameraScreen", "Modelo cargado correctamente")
+    } catch (e: IOException) {
+        e.printStackTrace()
+        Log.e("CameraScreen", "Error al cargar el modelo")
+    }
+}*/
+
 //@Preview
 //@Composable
 //fun CameraScreenPreview() {
@@ -227,7 +227,7 @@ fun CameraScreen(
 //        CameraScreen()
 //    }
 //}
-
+/*
 private fun processFrame(imageProxy: ImageProxy, onFrameCaptured: (Bitmap) -> Unit) {
     try {
         val bitmap = imageProxyToBitmap(imageProxy)
@@ -593,4 +593,4 @@ class FacialExpressionRecognition(
     }
 }
 
-
+*/

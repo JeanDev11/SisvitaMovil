@@ -35,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.fisi.sisvita.R
 import com.fisi.sisvita.data.model.Test
 import com.fisi.sisvita.ui.theme.SisvitaTheme
@@ -235,6 +236,7 @@ fun HelpMeAdd(
 @Composable
 fun HomeScreenPreview() {
     SisvitaTheme(darkTheme = false) {
-        //HomeScreen(paddingValues = PaddingValues(0.dp), onHelpMeClick = {})
+        val navController = rememberNavController()
+        HomeScreen(paddingValues = PaddingValues(0.dp), navController)
     }
 }
