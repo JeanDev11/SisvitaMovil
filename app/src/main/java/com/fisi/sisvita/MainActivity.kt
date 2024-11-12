@@ -23,7 +23,7 @@ import com.fisi.sisvita.data.model.UserSession
 import com.fisi.sisvita.ui.components.AppScaffoldComponent
 import com.fisi.sisvita.ui.screens.ErrorDialog
 import com.fisi.sisvita.ui.screens.LoginScreen
-import com.fisi.sisvita.ui.screens.initializeCameraScreen
+import com.fisi.sisvita.ui.screens.camera.initializeCameraScreen
 import com.fisi.sisvita.ui.theme.SisvitaTheme
 import okhttp3.Call
 import okhttp3.Callback
