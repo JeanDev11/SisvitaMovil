@@ -50,6 +50,11 @@ android {
 }
 
 dependencies {
+    implementation(libs.compose.audiowaveform)
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+    implementation(libs.converter.gson)
+    implementation(libs.retrofit)
     implementation(libs.okhttp)
     implementation (libs.androidx.camera.core)
     implementation (libs.androidx.camera.camera2)

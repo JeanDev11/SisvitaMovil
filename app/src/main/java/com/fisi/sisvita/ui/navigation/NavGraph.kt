@@ -11,6 +11,7 @@ import com.fisi.sisvita.ui.screens.HelpMeScreen
 import com.fisi.sisvita.ui.screens.HomeScreen
 import com.fisi.sisvita.ui.screens.ResultsScreen
 import com.fisi.sisvita.ui.screens.loading.LoadingScreen
+import com.fisi.sisvita.ui.screens.orientation.OrientationScreen
 
 @Composable
 fun AppNavHost(navController: NavHostController, paddingValues: PaddingValues,) {
@@ -28,7 +29,7 @@ fun AppNavHost(navController: NavHostController, paddingValues: PaddingValues,) 
             HomeScreen(paddingValues, navController)
         }
         composable("Cuenta") {
-            HomeScreen(paddingValues, navController)
+            OrientationScreen(paddingValues)
         }
     }
 }
@@ -50,7 +51,7 @@ fun HelpMeNavHost(paddingValues: PaddingValues) {
             ResultsScreen(paddingValues)
         }
         composable("Recommendations") {
-//            RecomendacionesScreen(navController)
+            OrientationScreen(paddingValues)
         }
     }
 }
