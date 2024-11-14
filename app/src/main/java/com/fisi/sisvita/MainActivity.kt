@@ -35,6 +35,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONObject
+import org.koin.androidx.compose.koinViewModel
 import java.io.IOException
 
 class MainActivity : ComponentActivity() {
@@ -63,9 +64,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             SisvitaTheme {
                 val navController = rememberNavController()
-                val loginViewModel: LoginViewModel = viewModel(
-                    factory = LoginViewModelFactory(LoginRepository())
-                )
+                val loginViewModel: LoginViewModel = koinViewModel()
                 val isLoggedIn by loginViewModel.loginState.collectAsState(initial = false)
 
                 if (isLoggedIn) {
