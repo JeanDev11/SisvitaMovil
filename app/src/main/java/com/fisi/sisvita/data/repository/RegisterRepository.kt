@@ -1,7 +1,7 @@
 package com.fisi.sisvita.data.repository
 
+
 import android.util.Log
-import com.fisi.sisvita.data.model.UserSession
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -11,8 +11,10 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
 
+
 class RegisterRepository {
     private val client = OkHttpClient()
+
 
     suspend fun register(documenttype: String, documentcharacter: String, birthdate: String,email: String,name: String,lastname: String,
                          secondlastname: String,gender: String, phone: String, department: String,province: String,district: String, username: String, password: String, role : String) : Boolean {
@@ -35,11 +37,13 @@ class RegisterRepository {
                 put("role", role)
             }
 
+
             val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
             val request = Request.Builder()
                 .url("https://dsm-backend.onrender.com/register")
                 .post(requestBody)
                 .build()
+
 
             try {
                 val response = client.newCall(request).execute()
@@ -47,7 +51,8 @@ class RegisterRepository {
                     val responseBody = response.body?.string()
                     val json1 = JSONObject(responseBody ?: "")
                     val status = json1.optInt("status")
-                    if(status == 200){
+                    Log.d("RegisterRepository", "API response: $json1")
+                    if(status == 201){
                         return@withContext true
                     }
                 }
@@ -58,12 +63,14 @@ class RegisterRepository {
         }
     }
 
+
     suspend fun getDocumentTypes(): List<String> {
         return withContext(Dispatchers.IO) {
             val request = Request.Builder()
                 .url("https://dsm-backend.onrender.com/document_type")
                 .get()
                 .build()
+
 
             try {
                 val response = client.newCall(request).execute()
@@ -92,12 +99,15 @@ class RegisterRepository {
     }
 
 
+
+
     suspend fun getGenders(): List<String> {
         return withContext(Dispatchers.IO) {
             val request = Request.Builder()
                 .url("https://dsm-backend.onrender.com/gender")
                 .get()
                 .build()
+
 
             try {
                 val response = client.newCall(request).execute()
@@ -125,12 +135,14 @@ class RegisterRepository {
         }
     }
 
+
     suspend fun getDepartments(): List<String> {
         return withContext(Dispatchers.IO) {
             val request = Request.Builder()
                 .url("https://dsm-backend.onrender.com/departamentos")
                 .get()
                 .build()
+
 
             try {
                 val response = client.newCall(request).execute()
@@ -158,12 +170,14 @@ class RegisterRepository {
         }
     }
 
+
     suspend fun getProvinces(department: String): List<String> {
         return withContext(Dispatchers.IO) {
             val request = Request.Builder()
                 .url("https://dsm-backend.onrender.com/departamentos/$department")
                 .get()
                 .build()
+
 
             try {
                 val response = client.newCall(request).execute()
@@ -191,12 +205,14 @@ class RegisterRepository {
         }
     }
 
+
     suspend fun getDistricts(department: String, province: String): List<String> {
         return withContext(Dispatchers.IO) {
             val request = Request.Builder()
                 .url("https://dsm-backend.onrender.com/departamentos/$department/provincias/$province")
                 .get()
                 .build()
+
 
             try {
                 val response = client.newCall(request).execute()
@@ -223,6 +239,4 @@ class RegisterRepository {
             }
         }
     }
-
-
 }

@@ -1,6 +1,7 @@
 // MainActivity.kt
 package com.fisi.sisvita
 
+import RegisterViewModel
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -19,6 +20,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.fisi.sisvita.data.model.UserSession
 import com.fisi.sisvita.data.repository.LoginRepository
@@ -26,15 +29,8 @@ import com.fisi.sisvita.factory.LoginViewModelFactory
 import com.fisi.sisvita.ui.components.AppScaffoldComponent
 import com.fisi.sisvita.ui.screens.login.LoginScreen
 import com.fisi.sisvita.ui.screens.login.LoginViewModel
+import com.fisi.sisvita.ui.screens.register.RegisterScreen
 import com.fisi.sisvita.ui.theme.SisvitaTheme
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
-import org.json.JSONObject
 import org.koin.androidx.compose.koinViewModel
 import java.io.IOException
 
@@ -65,20 +61,28 @@ class MainActivity : ComponentActivity() {
             SisvitaTheme {
                 val navController = rememberNavController()
                 val loginViewModel: LoginViewModel = koinViewModel()
+                val registerViewModel: RegisterViewModel = koinViewModel()
                 val isLoggedIn by loginViewModel.loginState.collectAsState(initial = false)
 
                 if (isLoggedIn) {
                     AppScaffoldComponent(
 //                        userName = loginViewModel.userName.value ?: "Unknown User",
-                        userName = "Linna User",
+                        userName = UserSession.userName.value ?: "Unknown User",
                         onLogout = { loginViewModel.logout() },
                         navController = navController
                     )
                 } else {
-                    LoginScreen(
-                        viewModel = loginViewModel,
-                        onSignUp = { navController.navigate("register") }
-                    )
+                    NavHost(navController = navController, startDestination = "login") {
+                        composable("login") {
+                            LoginScreen(
+                                viewModel = loginViewModel,
+                                onSignUp = { navController.navigate("register") }
+                            )
+                        }
+                        composable("register") {
+                            RegisterScreen(viewModel = registerViewModel, navController = navController)
+                        }
+                    }
                 }
             }
         }

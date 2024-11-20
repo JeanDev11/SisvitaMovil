@@ -1,24 +1,27 @@
 package com.fisi.sisvita.ui.screens.register
 
+
+import RegisterViewModel
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.fisi.sisvita.data.repository.RegisterRepository
-import com.fisi.sisvita.ui.screens.register.ErrorDialog
 import com.fisi.sisvita.ui.theme.SisvitaTheme
-import com.fisi.sisvita.ui.screens.register.RegisterViewModel
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterScreen(viewModel: RegisterViewModel) {
+fun RegisterScreen(viewModel: RegisterViewModel, navController: NavController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var firstName by remember { mutableStateOf("") }
@@ -38,6 +41,7 @@ fun RegisterScreen(viewModel: RegisterViewModel) {
     var isDistrictExpanded by remember { mutableStateOf(false) }
     var isGenderExpanded by remember { mutableStateOf(false) }
     var isDocumentTypeExpanded by remember { mutableStateOf(false) }
+    var showSuccessDialog by remember { mutableStateOf(false) }
 
     val documentTypes = viewModel.documentTypes
     val genders = viewModel.genders
@@ -45,9 +49,32 @@ fun RegisterScreen(viewModel: RegisterViewModel) {
     val provinces = viewModel.provinces
     val districts = viewModel.districts
 
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (viewModel.isLoading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        }
+    }
+
+
     if (viewModel.showErrorDialog) {
         ErrorDialog { viewModel.showErrorDialog = false }
     }
+
+
+    if (viewModel.registerState.collectAsState().value) {
+        showSuccessDialog = true
+    }
+
+    if (showSuccessDialog) {
+        SuccessDialog {
+            showSuccessDialog = false
+            navController.navigate("login") {
+                popUpTo("register") { inclusive = true } // Limpia el historial de navegación
+            }
+        }
+    }
+
 
     Column(
         modifier = Modifier
@@ -65,6 +92,7 @@ fun RegisterScreen(viewModel: RegisterViewModel) {
                 .padding(vertical = 4.dp)
         )
 
+
         // Campo de nombre de usuario
         OutlinedTextField(
             value = username,
@@ -74,6 +102,7 @@ fun RegisterScreen(viewModel: RegisterViewModel) {
                 .fillMaxWidth()
                 .padding(vertical = 4.dp)
         )
+
 
         // Campo de contraseña
         OutlinedTextField(
@@ -86,6 +115,7 @@ fun RegisterScreen(viewModel: RegisterViewModel) {
                 .padding(vertical = 4.dp)
         )
 
+
         // Campo de nombre
         OutlinedTextField(
             value = firstName,
@@ -95,6 +125,7 @@ fun RegisterScreen(viewModel: RegisterViewModel) {
                 .fillMaxWidth()
                 .padding(vertical = 4.dp)
         )
+
 
         // Campo de apellido paterno y materno
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -116,10 +147,11 @@ fun RegisterScreen(viewModel: RegisterViewModel) {
             )
         }
 
+
         // Menú desplegable para Tipo de Documento y Campo para Número de Documento
         Row(modifier = Modifier.fillMaxWidth()) {
             ExposedDropdownMenuBox(
-                expanded = documentType.isNotEmpty(),
+                expanded = isDocumentTypeExpanded,
                 onExpandedChange = { isDocumentTypeExpanded = !isDocumentTypeExpanded },
                 modifier = Modifier
                     .weight(0.6f)
@@ -136,14 +168,21 @@ fun RegisterScreen(viewModel: RegisterViewModel) {
                     expanded = isDocumentTypeExpanded,
                     onDismissRequest = { isDocumentTypeExpanded = false }
                 ) {
-                    documentTypes.forEach { type ->
+                    if (documentTypes.isEmpty()) {
                         DropdownMenuItem(
-                            text = { Text(type) },
-                            onClick = {
-                                documentType = type
-                                isDocumentTypeExpanded = false
-                            }
+                            text = { Text("No hay datos disponibles") },
+                            onClick = { isDocumentTypeExpanded = false }
                         )
+                    } else {
+                        documentTypes.forEach { type ->
+                            DropdownMenuItem(
+                                text = { Text(type) },
+                                onClick = {
+                                    documentType = type
+                                    isDocumentTypeExpanded = false
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -158,10 +197,11 @@ fun RegisterScreen(viewModel: RegisterViewModel) {
             )
         }
 
+
         // Menú desplegable para Género y Campo para Teléfono
         Row(modifier = Modifier.fillMaxWidth()) {
             ExposedDropdownMenuBox(
-                expanded = gender.isNotEmpty(),
+                expanded = isGenderExpanded,
                 onExpandedChange = { isGenderExpanded = !isGenderExpanded },
                 modifier = Modifier
                     .weight(0.5f)
@@ -200,9 +240,10 @@ fun RegisterScreen(viewModel: RegisterViewModel) {
             )
         }
 
+
         // Menú desplegable para Departamento
         ExposedDropdownMenuBox(
-            expanded = department.isNotEmpty(),
+            expanded = isDepartmentExpanded,
             onExpandedChange = { isDepartmentExpanded = !isDepartmentExpanded },
             modifier = Modifier
                 .fillMaxWidth()
@@ -232,10 +273,11 @@ fun RegisterScreen(viewModel: RegisterViewModel) {
             }
         }
 
+
         // Campo de provincia y distrito
         Row(modifier = Modifier.fillMaxWidth()) {
             ExposedDropdownMenuBox(
-                expanded = province.isNotEmpty(),
+                expanded = isProvinceExpanded,
                 onExpandedChange = { isProvinceExpanded = !isProvinceExpanded },
                 modifier = Modifier
                     .weight(1f)
@@ -265,7 +307,7 @@ fun RegisterScreen(viewModel: RegisterViewModel) {
                 }
             }
             ExposedDropdownMenuBox(
-                expanded = district.isNotEmpty(),
+                expanded = isDistrictExpanded,
                 onExpandedChange = { isDistrictExpanded = !isDistrictExpanded },
                 modifier = Modifier
                     .weight(1f)
@@ -295,11 +337,12 @@ fun RegisterScreen(viewModel: RegisterViewModel) {
             }
         }
 
+
         // Campo de fecha de nacimiento
         OutlinedTextField(
             value = birthDate,
             onValueChange = {
-                if (it.length <= 10 && it.matches(Regex("^\\d{0,4}-?\\d{0,2}-?\\d{0,2}\$"))) {
+                if (it.length <= 10 && it matches Regex("^\\d{0,4}-?\\d{0,2}-?\\d{0,2}\$")) {
                     birthDate = formatBirthDate(it)
                 }
             },
@@ -310,11 +353,12 @@ fun RegisterScreen(viewModel: RegisterViewModel) {
                 .padding(vertical = 4.dp)
         )
 
+
         Button(
             onClick = {
                 viewModel.register(documentType, documentCharacter, birthDate, email, firstName, lastName, middleName,
                     gender, phone, department, province, district, username, password, "2")
-                // Log.d("RegisterScreen", "Registering with: $documentType, $documentCharacter, $birthDate, $email, $firstName, $lastName, $middleName, $gender, $phone, $department, $province, $district, $username, $password")
+                Log.d("RegisterScreen", "Registering with: $documentType, $documentCharacter, $birthDate, $email, $firstName, $lastName, $middleName, $gender, $phone, $department, $province, $district, $username, $password")
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -325,6 +369,7 @@ fun RegisterScreen(viewModel: RegisterViewModel) {
     }
 }
 
+
 fun formatBirthDate(input: String): String {
     val digits = input.filter { it.isDigit() }
     return when {
@@ -333,6 +378,20 @@ fun formatBirthDate(input: String): String {
         digits.length >= 4 -> "${digits.substring(0, 4)}-"
         else -> digits
     }
+}
+
+@Composable
+fun SuccessDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Registro Exitoso") },
+        text = { Text("Su registro ha sido exitoso.") },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text("OK")
+            }
+        }
+    )
 }
 
 @Composable
@@ -351,10 +410,11 @@ fun ErrorDialog(onDismiss: () -> Unit) {
     )
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun RegisterScreenPreview() {
     SisvitaTheme {
-        RegisterScreen(viewModel = RegisterViewModel(RegisterRepository()))
+        RegisterScreen(viewModel = RegisterViewModel(RegisterRepository()), navController = rememberNavController()    )
     }
 }
