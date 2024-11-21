@@ -73,7 +73,7 @@ fun AppScaffoldComponent(
         Scaffold(
             topBar = {
                 TopBarComponent(
-                    title = if (selectedScreen == "Inicio") "Sis" else selectedScreen,
+                    title = if (selectedScreen == "Inicio") "Sisvita" else selectedScreen,
                     onMenuClick = {
                         scope.launch { drawerState.open() } // Abrir el drawer al hacer clic en el botón de menú
                     }

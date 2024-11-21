@@ -11,7 +11,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
 import androidx.camera.video.Recorder
-import androidx.camera.video.Recording
 import androidx.camera.video.VideoCapture
 import androidx.camera.view.PreviewView
 import androidx.compose.runtime.*
@@ -26,7 +25,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.common.util.concurrent.ListenableFuture
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
@@ -74,10 +72,8 @@ fun CameraContent(viewModel: CameraScreenViewModel) {
     val isUsingFrontCamera by viewModel.isUsingFrontCamera.collectAsState()
     val context = LocalContext.current
 
-    var currentRecording by remember { mutableStateOf<Recording?>(null) }
-    val recorder = Recorder.Builder().setQualitySelector(QualitySelector.from(Quality.SD)).build()
+    val recorder = Recorder.Builder().setQualitySelector(QualitySelector.from(Quality.HD)).build()
     val videoCapture = VideoCapture.withOutput(recorder)
-
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Camera preview
@@ -122,7 +118,6 @@ fun CameraContent(viewModel: CameraScreenViewModel) {
                     Log.e("Camera", "startRecording va entrar")
                     viewModel.startRecording(context, videoCapture)
                     viewModel.toggleRecording()
-
                 } },
                 modifier = Modifier
                     .size(56.dp)
@@ -158,36 +153,34 @@ fun CameraContent(viewModel: CameraScreenViewModel) {
 
 @Composable
 fun CameraPreview(isUsingFrontCamera: Boolean, videoCapture: VideoCapture<Recorder>, viewModel: CameraScreenViewModel) {
-    val context = LocalContext.current
-    val lifecycleOwner = LocalContext.current as LifecycleOwner
-    val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
-
-   // val isUsingFrontCamera by viewModel.isUsingFrontCamera.collectAsState()
-
-    //val cameraProvider = remember { mutableStateOf<ProcessCameraProvider?>(null) }
-    val previewView = remember { PreviewView(context) }
-
-    // Initialize video capture
-    val recorder = remember { Recorder.Builder().build() }
-    val videoCapture = remember { VideoCapture.withOutput(recorder) }
+    val context = LocalContext.current // Obtener el contexto actual de la aplicación
+    val lifecycleOwner = LocalContext.current as LifecycleOwner // Obtenr el ciclo de vida actual
+    val previewView = remember { PreviewView(context) } // Usar una referencia para el PreviewView
+    val cameraProviderFuture = ProcessCameraProvider.getInstance(context) // Usar un estado para manejar la cámara
 
     LaunchedEffect(cameraProviderFuture) {
+        // Esperar a que la cameraProvider esté listo
         cameraProviderFuture.addListener({
             val provider = cameraProviderFuture.get()
-            //cameraProvider.value = provider
-
             val cameraSelector = if (isUsingFrontCamera) CameraSelector.DEFAULT_FRONT_CAMERA else CameraSelector.DEFAULT_BACK_CAMERA
             val preview = Preview.Builder().build()
 
             try {
+                // Desvincular cualquier cámara previamente configurada
                 provider.unbindAll()
+
+                // Vincula la cámara actual
                 val camera = provider.bindToLifecycle(
                     lifecycleOwner,
                     cameraSelector,
                     preview,
                     videoCapture
                 )
+
+                // Asociar el preview a la vista
                 preview.setSurfaceProvider(previewView.surfaceProvider)
+
+                // Almacenar la camara en el viewModel para su uso posterior
                 viewModel.setCamera(camera)
 
             } catch (e: Exception) {
