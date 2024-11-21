@@ -26,7 +26,7 @@ fun AppNavHost(navController: NavHostController, paddingValues: PaddingValues,) 
             HelpMeNavHost(paddingValues)
         }
         composable("Historial") {
-            HomeScreen(paddingValues, navController)
+            CameraScreen()
         }
         composable("Cuenta") {
             OrientationScreen(paddingValues)

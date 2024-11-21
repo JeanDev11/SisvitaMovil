@@ -67,7 +67,8 @@ class MainActivity : ComponentActivity() {
                 val loginViewModel: LoginViewModel = koinViewModel()
                 val isLoggedIn by loginViewModel.loginState.collectAsState(initial = false)
 
-                if (isLoggedIn) {
+//isLoggedIn
+                if (true) {
                     AppScaffoldComponent(
 //                        userName = loginViewModel.userName.value ?: "Unknown User",
                         userName = "Linna User",

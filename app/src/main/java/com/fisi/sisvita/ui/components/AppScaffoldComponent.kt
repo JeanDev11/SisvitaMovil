@@ -42,7 +42,7 @@ fun AppScaffoldComponent(
             selectedScreen = when (backStackEntry.destination.route) {
                 "Inicio" -> "Inicio"
                 "Test" -> "Test"
-                "Necesito ayuda", "Camara" -> "Necesito ayuda"
+                "Necesito ayuda" -> "Necesito ayuda"
                 "Historial" -> "Historial"
                 "Cuenta" -> "Cuenta"
                 else -> "Inicio"
