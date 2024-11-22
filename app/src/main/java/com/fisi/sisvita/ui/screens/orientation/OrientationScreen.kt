@@ -2,9 +2,11 @@ package com.fisi.sisvita.ui.screens.orientation
 
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -94,9 +96,11 @@ fun OrientationScreen(
 
     Column(
         modifier = Modifier
+            .fillMaxHeight()
             .padding(paddingValues)
             .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         AudioWaveform(
             modifier = Modifier
@@ -127,9 +131,9 @@ fun OrientationScreen(
             Text("Reproducir respuesta")
         }
 
-        response.forEach {
-            Text(text = it)
-        }
+//        response.forEach {
+//            Text(text = it)
+//        }
     }
 
     DisposableEffect(Unit) {

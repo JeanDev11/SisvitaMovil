@@ -1,6 +1,7 @@
 package com.fisi.sisvita.ui.screens
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -14,13 +15,19 @@ import androidx.compose.ui.unit.sp
 import kotlin.random.Random
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.navigation.NavController
+import com.fisi.sisvita.ui.screens.camera.CameraScreenViewModel
+import com.fisi.sisvita.ui.screens.camera.UploadState
 import com.fisi.sisvita.ui.theme.SisvitaTheme
+import org.koin.androidx.compose.koinViewModel
+import java.math.RoundingMode
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -28,9 +35,10 @@ import kotlin.math.sin
 @Composable
 fun ResultsScreen(
     paddingValues: PaddingValues,
+    anxietyLevel: Float,
+    emotionPercentages: Map<String, Float>,
+    navController: NavController,
 ) {
-    val emotionPercentages = remember { generateRandomEmotionPercentages() }
-    val emotions = listOf("Alegría", "Tristeza", "Neutral", "Sorpresa", "Enojo", "Disgusto", "Miedo")
     val colors = listOf(
         Color(0xFF4CAF50), // Verde
         Color(0xFFF44336), // Rojo
@@ -41,7 +49,7 @@ fun ResultsScreen(
         Color(0xFF00BCD4)  // Cyan
     )
 
-    val anxietyLevel = remember { Random.nextFloat() * 100 } // Nivel de ansiedad aleatorio
+    //val anxietyLevel = remember { Random.nextFloat() * 100 } // Nivel de ansiedad aleatorio
 
     Column(
         modifier = Modifier
@@ -60,7 +68,58 @@ fun ResultsScreen(
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(16.dp))
-        ResultCard(emotionPercentages, emotions, colors)
+
+//        when (val state = uploadState) {
+//            is UploadState.Loading -> {
+//                CircularProgressIndicator()
+//            }
+//            is UploadState.Success -> {
+//                // Convertir las emociones a porcentajes
+//                val emotionPercentages = state.emotions.let {
+//                    mapOf(
+//                        "Disgustado" to (it.disgusted ?: 0.0) * 100,
+//                        "Enojado" to (it.angry ?: 0.0) * 100,
+//                        "Feliz" to (it.happy ?: 0.0) * 100,
+//                        "Miedo" to (it.scared ?: 0.0) * 100,
+//                        "Neutral" to (it.neutral ?: 0.0) * 100,
+//                        "Sorpresa" to (it.surprised ?: 0.0) * 100,
+//                        "Triste" to (it.sad ?: 0.0) * 100
+//                    ).mapValues { entry ->
+//                        entry.value.toBigDecimal().setScale(3, RoundingMode.HALF_UP).toFloat()
+//                    }
+//                }
+//
+//                ResultCard(emotionPercentages, colors)
+//                Spacer(modifier = Modifier.height(16.dp))
+//
+//                // Calculamos el nivel de ansiedad como promedio de emociones negativas
+//                val anxietyLevel = calculateAnxietyLevel(emotionPercentages)
+//                AnxietyLevelCard(anxietyLevel)
+//                Spacer(modifier = Modifier.height(16.dp))
+//
+//                Text(
+//                    text = "Recomendaciones",
+//                    style = MaterialTheme.typography.titleMedium,
+//                    color = MaterialTheme.colorScheme.onSurface,
+//                    textAlign = TextAlign.Center
+//                )
+//                Spacer(modifier = Modifier.height(16.dp))
+//                RecommendationCard()
+//            }
+//            is UploadState.Error -> {
+//                Text(
+//                    text = "Error al cargar resultados: ${state.message}",
+//                    color = MaterialTheme.colorScheme.error
+//                )
+//            }
+//            else -> {
+//                Text(
+//                    text = "Esperando resultados...",
+//                    color = MaterialTheme.colorScheme.onSurfaceVariant
+//                )
+//            }
+//        }
+        ResultCard(emotionPercentages, colors)
         Spacer(modifier = Modifier.height(16.dp))
         AnxietyLevelCard(anxietyLevel)
         Spacer(modifier = Modifier.height(16.dp))
@@ -71,12 +130,17 @@ fun ResultsScreen(
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(16.dp))
-        RecommendationCard()
+        Button(onClick = {
+            navController.navigate("Orientations")
+        }) {
+            Text(text = "Escuchar las recomendaciones de IA")
+        }
+        //RecommendationCard()
     }
 }
 
 @Composable
-fun ResultCard(emotionPercentages: List<Float>, emotions: List<String>, colors: List<Color>) {
+fun ResultCard(emotions: Map<String, Float>, colors: List<Color>) {
     Card(
         modifier = Modifier
             .fillMaxWidth(),
@@ -100,17 +164,62 @@ fun ResultCard(emotionPercentages: List<Float>, emotions: List<String>, colors: 
                     .padding(8.dp)
             ) {
                 Column {
-                    emotions.forEachIndexed { index, emotion ->
-                        if (index < emotionPercentages.size) {
-                            DisplayEmotionBar(emotion, emotionPercentages[index], colors[index])
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
+                    emotions.entries.forEachIndexed { index, (emotion, percentage) ->
+                        // Mostrar las etiquetas y las barras de progreso
+//                        Row(
+//                            modifier = Modifier.fillMaxWidth(),
+//                            horizontalArrangement = Arrangement.SpaceBetween
+//                        ) {
+//                            Text(
+//                                text = emotion,
+//                                color = MaterialTheme.colorScheme.onSurface,
+//                                style = MaterialTheme.typography.bodySmall
+//                            )
+//                            Text(
+//                                text = "${percentage.toInt()}%",
+//                                color = colors[index % colors.size],
+//                                style = MaterialTheme.typography.bodySmall
+//                            )
+//                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        // Mostrar la barra de progreso
+                        DisplayEmotionBar(emotion, percentage, colors[index % colors.size])
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
+
+//                    emotions.forEachIndexed { index, emotion ->
+//                        if (index < emotionPercentages.size) {
+//                            DisplayEmotionBar(emotion, emotionPercentages[index], colors[index])
+//                            Spacer(modifier = Modifier.height(8.dp))
+//                        }
+//                    }
                 }
             }
         }
     }
 }
+
+//@Composable
+//fun ResultCard(emotions: Map<String, Float>, colors: List<Color>) {
+//    Column(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .clip(RoundedCornerShape(16.dp))
+//            .background(MaterialTheme.colorScheme.surface)
+//            .padding(16.dp)
+//    ) {
+//        emotions.entries.forEachIndexed { index, (emotion, percentage) ->
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.SpaceBetween
+//            ) {
+//                Text(text = emotion, color = MaterialTheme.colorScheme.onSurface)
+//                Text(text = "${percentage}%", color = colors[index % colors.size])
+//            }
+//            Spacer(modifier = Modifier.height(8.dp))
+//        }
+//    }
+//}
 
 @Composable
 fun AnxietyLevelCard(
@@ -209,97 +318,6 @@ fun AnxietyLevelCard(
     }
 }
 
-//@Composable
-//fun AnxietyLevelCard(level: Float) {
-//    Card(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(8.dp)
-//            .height(180.dp),
-//        shape = RoundedCornerShape(12.dp),
-//        colors = CardDefaults.cardColors(
-//            containerColor = MaterialTheme.colorScheme.secondary
-//        ),
-//        elevation = CardDefaults.cardElevation(8.dp)
-//    ) {
-//        Column(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(8.dp),
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ) {
-//            Text(
-//                text = "Nivel de Ansiedad",
-//                style = MaterialTheme.typography.titleMedium,
-//                color = MaterialTheme.colorScheme.onSurface,
-//                textAlign = TextAlign.Center
-//            )
-//
-//            // Gráfico semi-arco para el nivel de ansiedad
-//            AnxietyLevelIndicator(level)
-//        }
-//    }
-//}
-//
-//@Composable
-//fun AnxietyLevelIndicator(level: Float) {
-//    Box(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .height(120.dp)
-//            .padding(8.dp),
-//        contentAlignment = Alignment.BottomCenter
-//    ) {
-//        Canvas(modifier = Modifier.fillMaxSize()) {
-//            val width = size.width
-//            val height = size.height
-//            val radius = width / 2f
-//            val center = Offset(width / 2f, height)
-//
-//            // Arco exterior (gráfico de fondo)
-//            drawArc(
-//                color = Color.Gray.copy(alpha = 0.3f),
-//                startAngle = 180f,
-//                sweepAngle = 180f,
-//                useCenter = false,
-//                size = androidx.compose.ui.geometry.Size(radius * 2f, radius * 2f),
-//                style = Stroke(width = 20f)
-//            )
-//
-//            // Arco de nivel de ansiedad (se dibuja en función del valor)
-//            val sweepAngle = (180f * (level / 100f))
-//            drawArc(
-//                color = Color(0xFF4CAF50), // Verde
-//                startAngle = 180f,
-//                sweepAngle = sweepAngle,
-//                useCenter = false,
-//                size = androidx.compose.ui.geometry.Size(radius * 2f, radius * 2f),
-//                style = Stroke(width = 20f)
-//            )
-//
-//            // Línea de indicador
-//            val angle = 180f + sweepAngle // Ajuste para que la aguja esté en la posición correcta
-//            val needleX = center.x + radius * 0.8f * kotlin.math.cos(Math.toRadians(angle.toDouble())).toFloat()
-//            val needleY = center.y + radius * 0.8f * kotlin.math.sin(Math.toRadians(angle.toDouble())).toFloat()
-//
-//            drawLine(
-//                color = Color(0xFF4CAF50),
-//                start = center,
-//                end = Offset(needleX, needleY),
-//                strokeWidth = 6f
-//            )
-//        }
-//
-//        // Mostrar el valor numérico del nivel de ansiedad
-//        Text(
-//            text = "${"%.1f".format(level)}%",
-//            style = MaterialTheme.typography.titleLarge.copy(fontSize = 24.sp),
-//            color = Color(0xFF4CAF50),
-//            modifier = Modifier.align(Alignment.Center)
-//        )
-//    }
-//}
-
 @Composable
 fun RecommendationCard() {
     Card(
@@ -368,10 +386,12 @@ fun generateRandomEmotionPercentages(): List<Float> {
     return randomValues.map { it / total * 100 }
 }
 
+
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewResultsScreen() {
     SisvitaTheme(darkTheme = false) {
-        ResultsScreen(paddingValues = PaddingValues(0.dp))
+        //ResultsScreen(paddingValues = PaddingValues(0.dp))
     }
 }

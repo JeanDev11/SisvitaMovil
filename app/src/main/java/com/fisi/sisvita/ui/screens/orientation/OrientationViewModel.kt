@@ -1,11 +1,10 @@
 package com.fisi.sisvita.ui.screens.orientation
 
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.fisi.sisvita.data.repository.EmotionalOrientationRepository
+import com.fisi.sisvita.data.repository.emotionalOrientation.EmotionalOrientationRepository
 import kotlinx.coroutines.launch
 
 class OrientationViewModel (private val repository: EmotionalOrientationRepository) : ViewModel() {

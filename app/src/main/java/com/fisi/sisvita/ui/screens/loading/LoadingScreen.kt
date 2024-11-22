@@ -44,7 +44,6 @@ fun LoadingScreen() {
                     textAlign = TextAlign.Center,
                 )
             }
-
         }
         Box(
             modifier = Modifier
