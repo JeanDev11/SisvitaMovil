@@ -80,7 +80,7 @@ class CameraScreenViewModel : ViewModel() {
             return null
         }
 
-        Log.d("Recording", "Archivo creado en: ${file.absolutePath}")
+        Log.e("Recording", "Archivo creado en: ${file.absolutePath}")
 
         try {
             // Configuración y preparación de la grabación
@@ -90,7 +90,7 @@ class CameraScreenViewModel : ViewModel() {
                 .start(ContextCompat.getMainExecutor(context)) { recordEvent ->
                     when (recordEvent) {
                         is VideoRecordEvent.Start -> {
-                            Log.i("Recording", "Grabación iniciada.")
+                            Log.e("Recording", "Grabación iniciada.")
                             _isRecording.value = true // Actualizamos el estado en el ViewModel
                         }
                         is VideoRecordEvent.Finalize -> {
@@ -101,11 +101,11 @@ class CameraScreenViewModel : ViewModel() {
                                     "Error al finalizar la grabación: ${recordEvent.error}, "
                                 )
                             } else {
-                                Log.i("Recording", "Video guardado en: ${file.absolutePath}")
+                                Log.e("Recording", "Video guardado en: ${file.absolutePath}")
                             }
                         }
                         else -> {
-                            Log.d("Recording", "Evento de grabación: $recordEvent")
+                            Log.e("Recording", "Evento de grabación: $recordEvent")
                         }
                     }
                 }

@@ -126,7 +126,7 @@ fun CameraContent(viewModel: CameraScreenViewModel) {
             ) {
                 Icon(
                     painter = painterResource(
-                        id = if (isRecording) R.drawable.ic_stop else R.drawable.ic_home
+                        id = if (isRecording) R.drawable.ic_stop else R.drawable.ic_record
                     ),
                     contentDescription = "Record",
                     tint = Color.White
