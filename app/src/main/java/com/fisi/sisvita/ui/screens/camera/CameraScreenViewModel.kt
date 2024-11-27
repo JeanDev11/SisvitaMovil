@@ -74,10 +74,11 @@ class CameraScreenViewModel : ViewModel() {
         }
 
         // Creación del archivo temporal
-        val file = File.createTempFile("temp_video", ".mp4", cacheDir)
-        if (!file.canWrite()) {
-            Log.e("Recording", "No se puede escribir en el archivo de destino.")
-            return null
+        val file = File(cacheDir, "temp_video.mp4")
+        // Si el archivo existe, eliminarlo
+        if (file.exists()) {
+            file.delete()
+            Log.d("Recording", "Archivo existente eliminado: ${file.absolutePath}")
         }
 
         Log.d("Recording", "Archivo creado en: ${file.absolutePath}")
@@ -123,7 +124,4 @@ class CameraScreenViewModel : ViewModel() {
         recording = null
     }
 
-    // Implementar el vaciado de la caché (Opcional)
 }
-
-

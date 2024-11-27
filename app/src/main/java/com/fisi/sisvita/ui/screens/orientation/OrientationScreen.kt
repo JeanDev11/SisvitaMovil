@@ -2,9 +2,11 @@ package com.fisi.sisvita.ui.screens.orientation
 
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,6 +29,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.fisi.sisvita.ui.screens.loading.LoadingViewModel
 import com.fisi.sisvita.ui.theme.SisvitaTheme
 import com.linc.audiowaveform.AudioWaveform
 import kotlinx.coroutines.Job
@@ -39,9 +43,10 @@ import java.util.UUID
 @Composable
 fun OrientationScreen(
     paddingValues: PaddingValues,
-    viewModel: OrientationViewModel = koinViewModel()
+    viewModel: LoadingViewModel = koinViewModel()
 ) {
-    val response = viewModel.response.value
+    val responseData by viewModel.responseData.collectAsState()
+//    val response = viewModel.response.value
     val context = LocalContext.current
     var isPlaying by remember { mutableStateOf(false) }
 
@@ -81,6 +86,7 @@ fun OrientationScreen(
                         amplitudes = List(30) { 0 }
                     }
 
+                    @Deprecated("Deprecated in Java")
                     override fun onError(utteranceId: String?) {
                         isPlaying = false
                         animationJob?.cancel()
@@ -89,14 +95,15 @@ fun OrientationScreen(
                 })
             }
         }
-        viewModel.obtenerRespuesta("sara", "triste y ansioso")
     }
 
     Column(
         modifier = Modifier
+            .fillMaxHeight()
             .padding(paddingValues)
             .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         AudioWaveform(
             modifier = Modifier
@@ -113,7 +120,7 @@ fun OrientationScreen(
 
         Button(onClick = {
             tts.value?.let { textToSpeech ->
-                response.forEach { message ->
+                responseData?.forEach { message ->
                     val utteranceId = UUID.randomUUID().toString()
                     textToSpeech.speak(
                         message,
@@ -127,9 +134,9 @@ fun OrientationScreen(
             Text("Reproducir respuesta")
         }
 
-        response.forEach {
-            Text(text = it)
-        }
+//        response.forEach {
+//            Text(text = it)
+//        }
     }
 
     DisposableEffect(Unit) {
