@@ -23,11 +23,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
-import com.fisi.sisvita.ui.screens.camera.CameraScreenViewModel
-import com.fisi.sisvita.ui.screens.camera.UploadState
 import com.fisi.sisvita.ui.theme.SisvitaTheme
-import org.koin.androidx.compose.koinViewModel
-import java.math.RoundingMode
 import kotlin.math.cos
 import kotlin.math.sin
 

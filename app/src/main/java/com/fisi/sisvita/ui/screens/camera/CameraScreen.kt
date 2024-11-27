@@ -2,6 +2,8 @@ package com.fisi.sisvita.ui.screens.camera
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -35,24 +37,45 @@ import androidx.navigation.NavController
 import com.fisi.sisvita.R
 import com.fisi.sisvita.ui.screens.loading.LoadingScreen
 import com.fisi.sisvita.util.toJson
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 import java.math.RoundingMode
 
 @Composable
-fun CameraScreen(navController: NavController, viewModel: CameraScreenViewModel = koinViewModel()) {
+fun CameraScreen(navController: NavController) {
     val context = LocalContext.current
-    val uploadState by viewModel.uploadState.collectAsState()
-    Log.d("CameraScreen", "Estado recibido: $uploadState")
+    val viewModel: CameraScreenViewModel = viewModel()
+
+//    val uploadState by viewModel.uploadState.collectAsState()
+//    Log.d("CameraScreen", "Estado recibido: $uploadState")
     var hasCameraPermission by remember { mutableStateOf(false) }
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         hasCameraPermission = isGranted
     }
-    Log.d("CameraScreen", "ViewModel hashCode: ${viewModel.hashCode()}")
+
+    if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+        hasCameraPermission = true
+    } else {
+        LaunchedEffect(Unit) {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
+    if (hasCameraPermission) {
+        CameraContent(navController, viewModel)
+    } else {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Se requiere el permiso de la cámara para continuar", color = Color.Red)
+        }
+    }
 
     // Manejar el estado de carga
-    when (val state = uploadState) {
+    /**when (val state = uploadState) {
         is UploadState.Idle -> {
             // Mostrar el contenido de la cámara
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
@@ -120,11 +143,11 @@ fun CameraScreen(navController: NavController, viewModel: CameraScreenViewModel 
             Toast.makeText(context, message, Toast.LENGTH_LONG).show()
             viewModel.resetState()
         }
-    }
+    }*/
 }
 
 @Composable
-fun CameraContent(viewModel: CameraScreenViewModel) {
+fun CameraContent(navController: NavController, viewModel: CameraScreenViewModel) {
     val isFlashOn by viewModel.isFlashOn.collectAsState()
     val isRecording by viewModel.isRecording.collectAsState()
     val isUsingFrontCamera by viewModel.isUsingFrontCamera.collectAsState()
@@ -132,6 +155,17 @@ fun CameraContent(viewModel: CameraScreenViewModel) {
 
     val recorder = Recorder.Builder().setQualitySelector(QualitySelector.from(Quality.HD)).build()
     val videoCapture = VideoCapture.withOutput(recorder)
+
+    // Estado para controlar la navegación después de la grabación
+    var shouldNavigate by remember { mutableStateOf(false) }
+
+    // Navegación programada después de 1.5 segundos
+    LaunchedEffect(shouldNavigate) {
+        if (shouldNavigate) {
+            delay(1500)
+            navController.navigate("Loading")
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Camera preview
@@ -171,7 +205,8 @@ fun CameraContent(viewModel: CameraScreenViewModel) {
                     if (isRecording) {
                         viewModel.stopRecording()
                         viewModel.toggleRecording()
-                        viewModel.uploadVideo(context)
+                        shouldNavigate = true
+                        //viewModel.uploadVideo(context)
                     } else {
                         val videoUri = viewModel.startRecording(context, videoCapture)
                         if (videoUri != null) {
@@ -256,34 +291,4 @@ fun CameraPreview(isUsingFrontCamera: Boolean, videoCapture: VideoCapture<Record
         modifier = Modifier.fillMaxSize(),
         factory = { previewView }
     )
-}
-
-fun calculateAnxietyLevel(emotions: Map<String, Float>): Float {
-    // Ponderaciones para cada emoción
-    val weights = mapOf(
-        "Disgustado" to 0.15f,   // Baja contribución
-        "Enojado" to 0.3f,      // Moderada contribución
-        "Feliz" to -0.4f,       // Reduce la ansiedad
-        "Miedo" to 0.4f,        // Alta contribución
-        "Neutral" to -0.1f,     // Reduce ligeramente la ansiedad
-        "Sorpresa" to 0.1f,     // Baja contribución
-        "Triste" to 0.3f        // Moderada contribución
-    )
-
-    // Calcular el nivel de ansiedad ponderado
-    var weightedSum = 0f
-    for ((emotion, value) in emotions) {
-        weightedSum += (weights[emotion] ?: 0f) * value
-    }
-
-    // Escalar el resultado al rango 0-100
-    val anxietyLevel = (weightedSum * 100).coerceIn(0f, 100f)
-
-    return anxietyLevel.toBigDecimal().setScale(3, RoundingMode.HALF_UP).toFloat()
-//    val negativeEmotions = listOf("Disgustado", "Enojado", "Triste", "Miedo")
-//    val anxietySum = negativeEmotions.map { emotions[it] ?: 0f }.sum()
-//    return (anxietySum / negativeEmotions.size * 100)
-//        .toBigDecimal()
-//        .setScale(3, RoundingMode.HALF_UP)
-//        .toFloat()
 }

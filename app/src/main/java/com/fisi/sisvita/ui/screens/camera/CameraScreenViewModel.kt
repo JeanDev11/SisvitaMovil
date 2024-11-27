@@ -15,22 +15,11 @@ import androidx.camera.video.Recording
 import androidx.camera.video.VideoRecordEvent
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import androidx.lifecycle.viewModelScope
-import com.fisi.sisvita.data.repository.emotionalAnalysis.EmotionalAnalysisResponse
-import com.fisi.sisvita.data.repository.emotionalAnalysis.EmotonialAnalysisRepository
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
 
 
-class CameraScreenViewModel(private val repository: EmotonialAnalysisRepository) : ViewModel() {
+class CameraScreenViewModel : ViewModel() {
     private var camera: Camera? = null
     private var recording: Recording? = null
-
-    private val _uploadState = MutableStateFlow<UploadState>(UploadState.Idle)
-    val uploadState: StateFlow<UploadState> get() = _uploadState
 
     // Estado para el flash (on/off)
     private val _isFlashOn = MutableStateFlow(false)
@@ -135,62 +124,4 @@ class CameraScreenViewModel(private val repository: EmotonialAnalysisRepository)
         recording = null
     }
 
-    fun uploadVideo(context: Context) {
-        viewModelScope.launch {
-            _uploadState.value = UploadState.Loading
-            Log.d("Upload", "Iniciando carga de video...")
-
-            val videoFile = File(context.cacheDir, "temp_video.mp4")
-            if (!videoFile.exists()) {
-                Log.e("Upload", "El archivo de video no existe.")
-                _uploadState.value = UploadState.Error("Archivo de video no encontrado.")
-                return@launch
-            }
-            Log.d("Upload", "Archivo de video encontrado: ${videoFile.absolutePath}")
-
-            delay(600)
-
-            try {
-                // Convertir File a MultipartBody.Part
-                val videoPart = MultipartBody.Part.createFormData(
-                    "video",
-                    videoFile.name,
-                    videoFile.asRequestBody("video/mp4".toMediaTypeOrNull())
-                )
-
-                val response = repository.analyzeVideo(videoPart)
-                if (response.isSuccessful) {
-                    val emotions = response.body()
-                    Log.d("Upload", "Emociones recibidas: $emotions")
-
-                    if (emotions != null) {
-                        _uploadState.value = UploadState.Success(emotions)
-                        Log.d("Upload", "Estado success: $_uploadState")
-                        Log.d("Upload", "ViewModel hashCode: ${this.hashCode()}")
-
-                    } else {
-                        _uploadState.value = UploadState.Error("Emociones nulas")
-                        Log.d("Upload", "Estado error: $_uploadState")
-                    }
-                } else {
-                    Log.e("Upload", "Error del servidor: ${response.code()} - ${response.message()}")
-                    _uploadState.value = UploadState.Error("Error: ${response.code()}")
-                }
-            } catch (e: Exception) {
-                Log.e("Upload", "Excepción al cargar: ${e.message}")
-                _uploadState.value = UploadState.Error("Exception: ${e.message}")
-            }
-        }
-    }
-
-    fun resetState() {
-        _uploadState.value = UploadState.Idle
-    }
-}
-
-sealed class UploadState {
-    object Idle : UploadState()
-    object Loading : UploadState()
-    data class Success(val emotions: EmotionalAnalysisResponse) : UploadState()
-    data class Error(val message: String) : UploadState()
 }

@@ -11,8 +11,8 @@ class EmotionalOrientationRepository {
 
     private val emotionService = retrofit.create(EmotionalOrientationService::class.java)
 
-    suspend fun getRespuesta(nombre: String, emocion: String): EmotionalOrientationResponse {
-        val requestBody = EmotionalOrientationRequest(nombre, emocion)
+    suspend fun getRespuesta(nombre: String, emociones: Map<String, Float>): EmotionalOrientationResponse {
+        val requestBody = EmotionalOrientationRequest(nombre, emociones)
         return emotionService.generarRespuesta(requestBody)
     }
 }

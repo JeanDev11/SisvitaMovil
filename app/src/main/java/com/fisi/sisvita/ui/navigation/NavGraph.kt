@@ -13,8 +13,10 @@ import com.fisi.sisvita.ui.screens.HelpMeScreen
 import com.fisi.sisvita.ui.screens.HomeScreen
 import com.fisi.sisvita.ui.screens.ResultsScreen
 import com.fisi.sisvita.ui.screens.loading.LoadingScreen
+import com.fisi.sisvita.ui.screens.loading.LoadingViewModel
 import com.fisi.sisvita.ui.screens.orientation.OrientationScreen
 import com.fisi.sisvita.util.fromJson
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AppNavHost(navController: NavHostController, paddingValues: PaddingValues,) {
@@ -32,7 +34,7 @@ fun AppNavHost(navController: NavHostController, paddingValues: PaddingValues,) 
 
         }
         composable("Cuenta") {
-            OrientationScreen(paddingValues)
+
         }
     }
 }
@@ -40,6 +42,8 @@ fun AppNavHost(navController: NavHostController, paddingValues: PaddingValues,) 
 @Composable
 fun HelpMeNavHost(paddingValues: PaddingValues) {
     val navController = rememberNavController()
+    val viewModel: LoadingViewModel = koinViewModel()
+
     NavHost(navController = navController, startDestination = "Steps") {
         composable("Steps") {
             HelpMeScreen(navController)
@@ -48,7 +52,7 @@ fun HelpMeNavHost(paddingValues: PaddingValues) {
             CameraScreen(navController)
         }
         composable("Loading") {
-            LoadingScreen()
+            LoadingScreen(navController, viewModel)
         }
         composable(
             "results?anxietyLevel={anxietyLevel}&emotions={emotions}",
@@ -63,7 +67,7 @@ fun HelpMeNavHost(paddingValues: PaddingValues) {
             ResultsScreen(paddingValues, anxietyLevel, emotionPercentages, navController)
         }
         composable("Orientations") {
-            OrientationScreen(paddingValues)
+            OrientationScreen(paddingValues, viewModel)
         }
     }
 }
