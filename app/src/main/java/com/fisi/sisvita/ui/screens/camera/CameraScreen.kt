@@ -224,7 +224,7 @@ fun CameraContent(navController: NavController, viewModel: CameraScreenViewModel
             ) {
                 Icon(
                     painter = painterResource(
-                        id = if (isRecording) R.drawable.ic_stop else R.drawable.ic_home
+                        id = if (isRecording) R.drawable.ic_stop_rec else R.drawable.ic_play_rec
                     ),
                     contentDescription = "Record",
                     tint = Color.White

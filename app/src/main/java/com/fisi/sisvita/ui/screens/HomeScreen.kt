@@ -108,7 +108,9 @@ fun TestAdd(){
         Button(onClick = { /* Acción al hacer clic en el botón */ }) {
             Text(text = "Ver todo")
         }
+
     }
+    Spacer(modifier = Modifier.height(12.dp))
     TestCarousel(
         tests = listOf(
             Test(1, "Test de Zung", "Mide tu nivel de ansiedad con 20 preguntas."),
