@@ -1,6 +1,7 @@
 package com.fisi.sisvita.ui.screens.test
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -9,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -16,6 +18,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.fisi.sisvita.data.model.RespuestaSubmission
 import com.fisi.sisvita.data.model.TestSubmission
+import com.fisi.sisvita.data.model.UserSession
 
 data class Question(val preguntaid: Int, val text: String, val answers: List<Answer>)
 data class Answer(val respuestaid: Int, val text: String)
@@ -85,6 +88,8 @@ fun TestsScreen(navController: NavController, viewModel: TestViewModel = viewMod
     val respuestas by viewModel.respuestas.collectAsState(initial = emptyList())
     var showErrorDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
+    var showResultDialog by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.fetchPreguntas()
@@ -100,13 +105,25 @@ fun TestsScreen(navController: NavController, viewModel: TestViewModel = viewMod
             answers = respuestas.filter { it.testid == pregunta.testid }
                 .map { Answer(respuestaid = it.respuestaid, text = it.textorespuesta) }
         )
-    }.filter { it.answers.isNotEmpty() } // Asegúrate de que haya respuestas
-
+    }.filter { it.answers.isNotEmpty() }
 
     if (showErrorDialog) {
         ErrorDialog(errorMessage = errorMessage) {
             showErrorDialog = false
         }
+    }
+
+    if (showResultDialog) {
+        ResultDialog(
+            diagnostico = UserSession.diagnostico.value ?: "",
+            puntaje = UserSession.puntaje.value ?: 0
+        ) {
+            showResultDialog = false
+        }
+    }
+
+    if (isLoading) {
+        CircularProgressIndicator(modifier = Modifier.fillMaxSize())
     }
 
     TestForm(questions = questions) { respuestasSeleccionadas ->
@@ -116,15 +133,55 @@ fun TestsScreen(navController: NavController, viewModel: TestViewModel = viewMod
             respuestas = respuestasSeleccionadas
         )
         Log.d("TestSubmission", testSubmission.toString())
+        isLoading = true
         viewModel.submitTest(testSubmission) { success ->
+            isLoading = false
             if (success) {
-                Log.d("TestSubmission", "Test submitted successfully")
+                showResultDialog = true
             } else {
                 errorMessage = "Failed to submit the test. Please try again."
                 showErrorDialog = true
             }
         }
     }
+}
+
+@Composable
+fun ResultDialog(diagnostico: String, puntaje: Int, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = diagnostico,
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "$puntaje/80",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                Button(onClick = onDismiss, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                    Text("OK")
+                }
+            }
+        },
+        confirmButton = {}
+    )
 }
 
 @Composable
@@ -139,4 +196,10 @@ fun ErrorDialog(errorMessage: String, onDismiss: () -> Unit) {
             }
         }
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ResultDialogPreview() {
+    ResultDialog(diagnostico = "Depresión grave", puntaje = 64, onDismiss = {})
 }

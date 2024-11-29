@@ -68,7 +68,7 @@ class MainActivity : ComponentActivity() {
                 val isLoggedIn by loginViewModel.loginState.collectAsState(initial = false)
 
 //isLoggedIn
-                if (true) {
+                if (isLoggedIn) {
                     AppScaffoldComponent(
                         userName = UserSession.userName.value ?: "Unknown User",
                         onLogout = { loginViewModel.logout() },

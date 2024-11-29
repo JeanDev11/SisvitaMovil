@@ -35,6 +35,10 @@ class LoginRepository {
                     val status = json1.optInt("status")
                     if (status == 200) {
                         val data = json1.optJSONObject("data")
+                        val personId = data?.optString("person_id")
+                        val username = data?.optString("username")
+                        UserSession.personId.value = personId
+                        UserSession.userName.value = username
                         return@withContext true
                     }
                 }
