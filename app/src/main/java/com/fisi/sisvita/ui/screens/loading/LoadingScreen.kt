@@ -91,7 +91,7 @@ fun LoadingView() {
             ){
                 LottieAnimationComponent(
                     resId = R.raw.loading,
-                    modifier = Modifier.height(60.dp)
+                    modifier = Modifier.height(120.dp)
                 )
                 Text(
                     text = "Se esta analizando los resultados.\n Por favor, espere...",

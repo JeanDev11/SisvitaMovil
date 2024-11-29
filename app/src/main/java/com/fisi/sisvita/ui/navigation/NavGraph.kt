@@ -28,19 +28,19 @@ fun AppNavHost(navController: NavHostController, paddingValues: PaddingValues,) 
             //ResultsScreen(paddingValues)
         }
         composable("Necesito ayuda") {
-            HelpMeNavHost(paddingValues)
+            HelpMeNavHost(navController, paddingValues)
         }
         composable("Historial") {
 
         }
         composable("Cuenta") {
-
+//            OrientationScreen(paddingValues)
         }
     }
 }
 
 @Composable
-fun HelpMeNavHost(paddingValues: PaddingValues) {
+fun HelpMeNavHost(rootNavController: NavHostController, paddingValues: PaddingValues) {
     val navController = rememberNavController()
     val viewModel: LoadingViewModel = koinViewModel()
 
@@ -67,7 +67,7 @@ fun HelpMeNavHost(paddingValues: PaddingValues) {
             ResultsScreen(paddingValues, anxietyLevel, emotionPercentages, navController)
         }
         composable("Orientations") {
-            OrientationScreen(paddingValues, viewModel)
+            OrientationScreen(viewModel, paddingValues, rootNavController = rootNavController )
         }
     }
 }
