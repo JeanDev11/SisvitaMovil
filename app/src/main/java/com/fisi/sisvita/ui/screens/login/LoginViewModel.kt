@@ -1,5 +1,6 @@
 package com.fisi.sisvita.ui.screens.login
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -20,6 +21,8 @@ class LoginViewModel (private val loginRepository: LoginRepository) : ViewModel(
     fun login(username: String, password: String) {
         viewModelScope.launch {
             val success = loginRepository.login(username, password)
+            Log.d("LoginViewModel", "Logging in with: $username, $password")
+            Log.d("LoginViewModel", "Login success: $success")
             if (success) {
                 _loginState.value = true
             } else {

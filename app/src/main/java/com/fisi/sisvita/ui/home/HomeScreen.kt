@@ -1,6 +1,7 @@
-package com.fisi.sisvita.ui.screens
+package com.fisi.sisvita.ui.home
 
 import android.net.http.HeaderBlock
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -39,13 +40,17 @@ import androidx.navigation.compose.rememberNavController
 import com.fisi.sisvita.R
 import com.fisi.sisvita.data.model.Test
 import com.fisi.sisvita.data.model.UserSession
+import com.fisi.sisvita.data.repository.TestRepository
 import com.fisi.sisvita.ui.theme.SisvitaTheme
 
 @Composable
 fun HomeScreen(
     paddingValues: PaddingValues,
     navController: NavController,
+    viewModel: HomeViewModel // Inyecta el ViewModel
 ) {
+    val tests by viewModel.tests.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -54,7 +59,7 @@ fun HomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Welcome()
-        TestAdd()
+        TestAdd(tests) // Pasa la lista de tests al componente
         HelpMeAdd(navController = navController)
     }
 }
@@ -92,30 +97,35 @@ fun Welcome(){
 }
 
 @Composable
-fun TestAdd(){
-    Row (
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "Realiza tu Test",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
+fun TestAdd(tests: List<Test>) {
+    if (tests.isEmpty()) {
+        // Mostrar un indicador de carga si no hay datos
+        CircularProgressIndicator(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            color = MaterialTheme.colorScheme.primary
         )
-        Button(onClick = { /* Acción al hacer clic en el botón */ }) {
-            Text(text = "Ver todo")
+    } else {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Realiza tu Test",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Button(onClick = { /* Lógica para ver todos los tests */ }) {
+                Text(text = "Ver todo")
+            }
         }
+
+        TestCarousel(tests = tests)
     }
-    TestCarousel(
-        tests = listOf(
-            Test(1, "Test de Zung", "Mide tu nivel de ansiedad con 20 preguntas."),
-            Test(2, "Test de Beck", "Evalúa la severidad de tu ansiedad en las últimas semanas."),
-            Test(3, "Test de AMAS-C", "Evalúa la ansiedad social y emocional en jóvenes.")
-        )
-    )
 }
 
 @Composable
@@ -125,13 +135,13 @@ fun TestCarousel(tests: List<Test>) {
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(tests) { test ->
-            TestCard(test)
+            TestCard(test, navController = rememberNavController())
         }
     }
 }
 
 @Composable
-fun TestCard(test: Test) {
+fun TestCard(test: Test, navController: NavController) {
     Card(
         modifier = Modifier
             .width(200.dp)
@@ -147,12 +157,12 @@ fun TestCard(test: Test) {
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = test.title,
+                text = test.nombre,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = test.description,
+                text = test.descripcion,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodySmall,
@@ -160,7 +170,11 @@ fun TestCard(test: Test) {
             )
             Spacer(modifier = Modifier.weight(1f))
             Button(
-                onClick = { /* Acción al hacer clic en el botón */ },
+                onClick = { try {
+                    navController.navigate("DoTest")
+                } catch (e: Exception) {
+                    Log.e("NavigationError", "Error navigating to Test: ${e.message}")
+                } },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary
                 )
@@ -238,6 +252,6 @@ fun HelpMeAdd(
 fun HomeScreenPreview() {
     SisvitaTheme(darkTheme = false) {
         val navController = rememberNavController()
-        HomeScreen(paddingValues = PaddingValues(0.dp), navController)
+        HomeScreen(paddingValues = PaddingValues(0.dp), navController = navController, viewModel = HomeViewModel(TestRepository()))
     }
 }
