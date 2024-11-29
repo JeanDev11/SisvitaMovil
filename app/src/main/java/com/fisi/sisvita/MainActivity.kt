@@ -71,7 +71,7 @@ class MainActivity : ComponentActivity() {
                 if (true) {
                     AppScaffoldComponent(
 //                        userName = loginViewModel.userName.value ?: "Unknown User",
-                        userName = "Linna User",
+                        userName = "Linna",
                         onLogout = { loginViewModel.logout() },
                         navController = navController
                     )

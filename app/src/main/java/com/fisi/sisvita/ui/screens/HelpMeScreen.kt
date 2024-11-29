@@ -27,7 +27,6 @@ import androidx.navigation.compose.rememberNavController
 import com.fisi.sisvita.R
 import com.fisi.sisvita.ui.theme.SisvitaTheme
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HelpMeScreen(navController: NavController){
     val pagerState = rememberPagerState(pageCount = { 4 })

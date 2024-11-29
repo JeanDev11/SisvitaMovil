@@ -40,7 +40,6 @@ class CameraScreenViewModel : ViewModel() {
             val newFlashState = !_isFlashOn.value
             it.cameraControl.enableTorch(newFlashState)
             _isFlashOn.value = newFlashState
-
         }
     }
 
