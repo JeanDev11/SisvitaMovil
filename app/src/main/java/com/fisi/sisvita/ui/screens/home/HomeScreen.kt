@@ -1,4 +1,4 @@
-package com.fisi.sisvita.ui.home
+package com.fisi.sisvita.ui.screens.home
 
 import android.net.http.HeaderBlock
 import android.util.Log

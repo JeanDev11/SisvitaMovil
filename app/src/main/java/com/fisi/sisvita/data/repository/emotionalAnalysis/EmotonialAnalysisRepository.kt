@@ -15,7 +15,7 @@ class EmotonialAnalysisRepository {
         .build()
 
     private val retrofit = Retrofit.Builder()
-        .baseUrl("https://bb95-38-56-110-73.ngrok-free.app")
+        .baseUrl("https://ccb5-38-56-110-73.ngrok-free.app")
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build()

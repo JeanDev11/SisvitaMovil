@@ -8,13 +8,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.fisi.sisvita.data.repository.TestRepository
+import com.fisi.sisvita.ui.screens.home.HomeScreen
+import com.fisi.sisvita.ui.screens.home.HomeViewModel
 import com.fisi.sisvita.ui.screens.camera.CameraScreen
 import com.fisi.sisvita.ui.screens.HelpMeScreen
-import com.fisi.sisvita.ui.screens.HomeScreen
 import com.fisi.sisvita.ui.screens.ResultsScreen
 import com.fisi.sisvita.ui.screens.loading.LoadingScreen
 import com.fisi.sisvita.ui.screens.loading.LoadingViewModel
 import com.fisi.sisvita.ui.screens.orientation.OrientationScreen
+import com.fisi.sisvita.ui.screens.test.TestsScreen
 import com.fisi.sisvita.util.fromJson
 import org.koin.androidx.compose.koinViewModel
 
@@ -22,7 +25,7 @@ import org.koin.androidx.compose.koinViewModel
 fun AppNavHost(navController: NavHostController, paddingValues: PaddingValues,) {
     NavHost(navController = navController, startDestination = "Inicio") {
         composable("Inicio") {
-            HomeScreen(paddingValues, navController)
+            HomeScreen(paddingValues, navController, HomeViewModel(TestRepository()))
         }
         composable("Test") {
             //ResultsScreen(paddingValues)
@@ -35,6 +38,9 @@ fun AppNavHost(navController: NavHostController, paddingValues: PaddingValues,) 
         }
         composable("Cuenta") {
 //            OrientationScreen(paddingValues)
+        }
+        composable("DoTest") {
+            TestNavHost(paddingValues)
         }
     }
 }
@@ -68,6 +74,19 @@ fun HelpMeNavHost(rootNavController: NavHostController, paddingValues: PaddingVa
         }
         composable("Orientations") {
             OrientationScreen(viewModel, paddingValues, rootNavController = rootNavController )
+        }
+    }
+}
+
+@Composable
+fun TestNavHost(paddingValues: PaddingValues) {
+    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = "DoTest") {
+        composable("DoTest") {
+            TestsScreen(paddingValues, navController)
+        }
+        composable("ResultTest") {
+            //ResultsTestScreen(paddingValues)
         }
     }
 }

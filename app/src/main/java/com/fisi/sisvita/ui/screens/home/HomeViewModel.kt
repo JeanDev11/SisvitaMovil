@@ -1,4 +1,4 @@
-package com.fisi.sisvita.ui.home
+package com.fisi.sisvita.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
