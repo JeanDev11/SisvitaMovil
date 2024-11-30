@@ -1,5 +1,6 @@
 package com.fisi.sisvita.ui.screens.login
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -55,7 +56,7 @@ fun LoginScreen(viewModel: LoginViewModel, onSignUp: () -> Unit) {
         TextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Username") },
+            label = { Text("Email") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -68,7 +69,8 @@ fun LoginScreen(viewModel: LoginViewModel, onSignUp: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(
-            onClick = { viewModel.login(email, password) },
+            onClick = { viewModel.login(email, password)
+                Log.d("LoginScreen", "Login success: $email and $password")},
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Login")

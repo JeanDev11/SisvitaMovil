@@ -1,5 +1,6 @@
 package com.fisi.sisvita.data.repository
 
+import android.util.Log
 import com.fisi.sisvita.data.model.UserSession
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -13,17 +14,17 @@ import java.io.IOException
 class LoginRepository {
     private val client = OkHttpClient()
 
-    suspend fun login(username: String, password: String): Boolean {
+    suspend fun login(email: String, password: String): Boolean {
         return withContext(Dispatchers.IO) {
             val json = JSONObject().apply {
-                put("username", username)
-                put("password", password)
-                put("role", 2)
+                put("correo", email)
+                put("contrasena", password)
+                put("tipousuarioid", 1)
             }
 
             val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
             val request = Request.Builder()
-                .url("https://dsm-backend.onrender.com/login")
+                .url("https://sysvita-dswg13-1.onrender.com/login")
                 .post(requestBody)
                 .build()
 
@@ -35,8 +36,11 @@ class LoginRepository {
                     val status = json1.optInt("status")
                     if (status == 200) {
                         val data = json1.optJSONObject("data")
-                        UserSession.personId.value = data?.optString("id_person")
-                        UserSession.userName.value = data?.optString("userName")
+                        val personId = data?.optString("persona_id")
+                        val username = data?.optString("username")
+                        UserSession.personId.value = personId
+                        Log.d("Login", personId.toString())
+                        UserSession.userName.value = username
                         return@withContext true
                     }
                 }
