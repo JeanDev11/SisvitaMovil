@@ -59,7 +59,7 @@ fun HomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Welcome()
-        TestAdd(tests) // Pasa la lista de tests al componente
+        TestAdd(tests, navController) // Pasa la lista de tests al componente
         HelpMeAdd(navController = navController)
     }
 }
@@ -97,7 +97,7 @@ fun Welcome(){
 }
 
 @Composable
-fun TestAdd(tests: List<Test>) {
+fun TestAdd(tests: List<Test>, navController: NavController) {
     if (tests.isEmpty()) {
         // Mostrar un indicador de carga si no hay datos
         CircularProgressIndicator(
@@ -124,18 +124,18 @@ fun TestAdd(tests: List<Test>) {
             }
         }
 
-        TestCarousel(tests = tests)
+        TestCarousel(tests = tests, navController = navController)
     }
 }
 
 @Composable
-fun TestCarousel(tests: List<Test>) {
+fun TestCarousel(tests: List<Test>, navController: NavController) {
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(tests) { test ->
-            TestCard(test, navController = rememberNavController())
+            TestCard(test, navController = navController)
         }
     }
 }
@@ -170,8 +170,11 @@ fun TestCard(test: Test, navController: NavController) {
             )
             Spacer(modifier = Modifier.weight(1f))
             Button(
-                onClick = { try {
+                onClick = {
+                    UserSession.testId.value = test.testid.toString()
+                    try {
                     navController.navigate("DoTest")
+                    Log.d("NavigationError", test.testid.toString())
                 } catch (e: Exception) {
                     Log.e("NavigationError", "Error navigating to Test: ${e.message}")
                 } },

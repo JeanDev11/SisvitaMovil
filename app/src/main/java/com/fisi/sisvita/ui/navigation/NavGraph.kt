@@ -34,6 +34,10 @@ fun AppNavHost(navController: NavHostController, paddingValues: PaddingValues,) 
         composable("Cuenta") {
             OrientationScreen(paddingValues)
         }
+        composable("DoTest") {
+//            TestsScreen(paddingValues, navController)
+            TestNavHost(paddingValues)
+        }
     }
 }
 
@@ -64,7 +68,7 @@ fun TestNavHost(paddingValues: PaddingValues) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "DoTest") {
         composable("DoTest") {
-            TestsScreen(navController)
+            TestsScreen(paddingValues, navController)
         }
         composable("ResultTest") {
             //ResultsTestScreen(paddingValues)

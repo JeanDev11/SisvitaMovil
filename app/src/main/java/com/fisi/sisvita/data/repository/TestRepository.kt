@@ -57,7 +57,7 @@ class TestRepository {
 
     suspend fun getPreguntas(): List<Pregunta> {
         return withContext(Dispatchers.IO) {
-            val testId = 1 //UserSession.testId.value ?: return@withContext emptyList()
+            val testId = UserSession.testId.value ?: return@withContext emptyList()
             val request = Request.Builder()
                 .url("https://sysvita-dswg13-1.onrender.com/preguntas/$testId")
                 .get()
@@ -95,7 +95,7 @@ class TestRepository {
 
     suspend fun getRespuestas(): List<Respuesta> {
         return withContext(Dispatchers.IO) {
-            val testId = 1 //UserSession.testId.value ?: return@withContext emptyList()
+            val testId = UserSession.testId.value ?: return@withContext emptyList()
             val request = Request.Builder()
                 .url("https://sysvita-dswg13-1.onrender.com/respuestas/$testId")
                 .get()

@@ -1,5 +1,6 @@
 package com.fisi.sisvita.data.repository
 
+import android.util.Log
 import com.fisi.sisvita.data.model.UserSession
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -35,9 +36,10 @@ class LoginRepository {
                     val status = json1.optInt("status")
                     if (status == 200) {
                         val data = json1.optJSONObject("data")
-                        val personId = data?.optString("person_id")
+                        val personId = data?.optString("persona_id")
                         val username = data?.optString("username")
                         UserSession.personId.value = personId
+                        Log.d("Login", personId.toString())
                         UserSession.userName.value = username
                         return@withContext true
                     }

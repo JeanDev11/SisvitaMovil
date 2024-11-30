@@ -9,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,14 +23,14 @@ data class Question(val preguntaid: Int, val text: String, val answers: List<Ans
 data class Answer(val respuestaid: Int, val text: String)
 
 @Composable
-fun TestForm(questions: List<Question>, onSubmit: (List<RespuestaSubmission>) -> Unit) {
+fun TestForm(paddingValues: PaddingValues, questions: List<Question>, onSubmit: (List<RespuestaSubmission>) -> Unit) {
     val selectedAnswers = remember { mutableStateMapOf<Int, Int>() }
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
-            .padding(top = 75.dp),
+            .padding(paddingValues)
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         itemsIndexed(questions) { index, question ->
@@ -83,7 +82,7 @@ fun TestForm(questions: List<Question>, onSubmit: (List<RespuestaSubmission>) ->
 }
 
 @Composable
-fun TestsScreen(navController: NavController, viewModel: TestViewModel = viewModel()) {
+fun TestsScreen(paddingValues: PaddingValues, navController: NavController, viewModel: TestViewModel = viewModel()) {
     val preguntas by viewModel.preguntas.collectAsState(initial = emptyList())
     val respuestas by viewModel.respuestas.collectAsState(initial = emptyList())
     var showErrorDialog by remember { mutableStateOf(false) }
@@ -126,10 +125,13 @@ fun TestsScreen(navController: NavController, viewModel: TestViewModel = viewMod
         CircularProgressIndicator(modifier = Modifier.fillMaxSize())
     }
 
-    TestForm(questions = questions) { respuestasSeleccionadas ->
+    TestForm(paddingValues = paddingValues,questions = questions) { respuestasSeleccionadas ->
+        val testId = UserSession.testId.value?.toIntOrNull() ?: 0
+        val personaid = UserSession.personId.value?.toIntOrNull() ?: 0
+        Log.d("Test", personaid.toString())
         val testSubmission = TestSubmission(
-            personaid = 18,
-            testid = 1,
+            personaid = personaid,
+            testid = testId,
             respuestas = respuestasSeleccionadas
         )
         Log.d("TestSubmission", testSubmission.toString())
@@ -151,12 +153,12 @@ fun ResultDialog(diagnostico: String, puntaje: Int, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Box(
+            Column (
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.primary)
                     .padding(16.dp),
-                contentAlignment = Alignment.Center
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = diagnostico,
@@ -167,7 +169,8 @@ fun ResultDialog(diagnostico: String, puntaje: Int, onDismiss: () -> Unit) {
         },
         text = {
             Column(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth().padding(vertical = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -175,6 +178,7 @@ fun ResultDialog(diagnostico: String, puntaje: Int, onDismiss: () -> Unit) {
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
+//                Spacer(modifier = Modifier.height(10.dp))
                 Button(onClick = onDismiss, modifier = Modifier.align(Alignment.CenterHorizontally)) {
                     Text("OK")
                 }
