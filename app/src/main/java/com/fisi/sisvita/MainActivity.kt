@@ -22,7 +22,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.fisi.sisvita.data.model.UserSession
 import com.fisi.sisvita.data.repository.LoginRepository
-import com.fisi.sisvita.factory.LoginViewModelFactory
 import com.fisi.sisvita.ui.components.AppScaffoldComponent
 import com.fisi.sisvita.ui.screens.login.LoginScreen
 import com.fisi.sisvita.ui.screens.login.LoginViewModel

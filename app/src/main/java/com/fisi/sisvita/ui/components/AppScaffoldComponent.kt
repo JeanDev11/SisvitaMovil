@@ -43,9 +43,10 @@ fun AppScaffoldComponent(
             selectedScreen = when (backStackEntry.destination.route) {
                 "Inicio" -> "Inicio"
                 "Test" -> "Test"
-                "Necesito ayuda" -> "Necesito ayuda"
+                "Necesito ayuda" -> "Necesito Ayuda"
                 "Historial" -> "Historial"
                 "Cuenta" -> "Cuenta"
+                "DoTest" -> "Test"
                 else -> "Inicio"
             }
         }
@@ -82,11 +83,6 @@ fun AppScaffoldComponent(
             },
             content = { paddingValues ->
                 AppNavHost(navController = navController, paddingValues = paddingValues,)
-//                ScreenContent(
-//                    selectedScreen = selectedScreen,
-//                    paddingValues = paddingValues,
-//                    onHelpMeClick = { selectedScreen = "Necesito ayuda" }
-//                )
             }
         )
     }
@@ -116,11 +112,6 @@ fun TopBarComponent(
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.surface
             ),
-//            modifier = Modifier.shadow(
-//                elevation = 4.dp,
-//                spotColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-//                ambientColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-//            )
         )
         HorizontalDivider(
             thickness = 1.dp,

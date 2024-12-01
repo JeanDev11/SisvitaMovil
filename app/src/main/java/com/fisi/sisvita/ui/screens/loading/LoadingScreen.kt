@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.fisi.sisvita.R
+import com.fisi.sisvita.data.model.UserSession
 import com.fisi.sisvita.ui.components.LottieAnimationComponent
 import com.fisi.sisvita.ui.theme.SisvitaTheme
 import com.fisi.sisvita.util.toJson
@@ -39,7 +40,8 @@ fun LoadingScreen(
     val uploadState by viewModel.uploadState.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.uploadVideoAndProcess(context, "Sara")
+        val userName = UserSession.userName.value ?: ""
+        viewModel.uploadVideoAndProcess(context, userName)
     }
 
     when (val state = uploadState) {

@@ -1,10 +1,8 @@
 package com.fisi.sisvita.ui.screens.home
 
-import android.net.http.HeaderBlock
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -41,13 +38,14 @@ import com.fisi.sisvita.R
 import com.fisi.sisvita.data.model.Test
 import com.fisi.sisvita.data.model.UserSession
 import com.fisi.sisvita.data.repository.TestRepository
+import com.fisi.sisvita.ui.screens.test.TestViewModel
 import com.fisi.sisvita.ui.theme.SisvitaTheme
 
 @Composable
 fun HomeScreen(
     paddingValues: PaddingValues,
     navController: NavController,
-    viewModel: HomeViewModel // Inyecta el ViewModel
+    viewModel: TestViewModel
 ) {
     val tests by viewModel.tests.collectAsState()
 
@@ -59,7 +57,7 @@ fun HomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Welcome()
-        TestAdd(tests, navController) // Pasa la lista de tests al componente
+        TestAdd(tests, navController, viewModel) // Pasa la lista de tests al componente
         HelpMeAdd(navController = navController)
     }
 }
@@ -97,12 +95,12 @@ fun Welcome(){
 }
 
 @Composable
-fun TestAdd(tests: List<Test>, navController: NavController) {
+fun TestAdd(tests: List<Test>, navController: NavController, viewModel: TestViewModel) {
     if (tests.isEmpty()) {
         // Mostrar un indicador de carga si no hay datos
         CircularProgressIndicator(
             modifier = Modifier
-                .fillMaxWidth()
+                .size(32.dp)
                 .padding(16.dp),
             color = MaterialTheme.colorScheme.primary
         )
@@ -119,29 +117,31 @@ fun TestAdd(tests: List<Test>, navController: NavController) {
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )
-            Button(onClick = { /* Lógica para ver todos los tests */ }) {
+            Button(
+                onClick = { navController.navigate("Test") },
+            ) {
                 Text(text = "Ver todo")
             }
         }
-
-        TestCarousel(tests = tests, navController = navController)
+        Spacer(modifier = Modifier.height(12.dp))
+        TestCarousel(tests, navController, viewModel)
     }
 }
 
 @Composable
-fun TestCarousel(tests: List<Test>, navController: NavController) {
+fun TestCarousel(tests: List<Test>, navController: NavController, viewModel: TestViewModel) {
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(tests) { test ->
-            TestCard(test, navController = navController)
+            TestCard(test, navController, viewModel)
         }
     }
 }
 
 @Composable
-fun TestCard(test: Test, navController: NavController) {
+fun TestCard(test: Test, navController: NavController, viewModel: TestViewModel) {
     Card(
         modifier = Modifier
             .width(200.dp)
@@ -171,13 +171,23 @@ fun TestCard(test: Test, navController: NavController) {
             Spacer(modifier = Modifier.weight(1f))
             Button(
                 onClick = {
-                    UserSession.testId.value = test.testid.toString()
                     try {
-                    navController.navigate("DoTest")
-                    Log.d("NavigationError", test.testid.toString())
-                } catch (e: Exception) {
-                    Log.e("NavigationError", "Error navigating to Test: ${e.message}")
-                } },
+                        // Selecciona el test en el ViewModel
+                        viewModel.selectTest(test.testid)
+                        Log.e("NavigationError", test.testid.toString())
+                        // Navega a TestFormScreen
+                        navController.navigate("DoTest")
+                    } catch (e: Exception) {
+                        Log.e("NavigationError", "Error navigating to Test: ${e.message}")
+                    }
+//                    UserSession.testId.value = test.testid.toString()
+//                    try {
+//                    navController.navigate("DoTest")
+//                    Log.d("NavigationError", test.testid.toString())
+//                } catch (e: Exception) {
+//                    Log.e("NavigationError", "Error navigating to Test: ${e.message}")
+//                }
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary
                 )
@@ -255,6 +265,6 @@ fun HelpMeAdd(
 fun HomeScreenPreview() {
     SisvitaTheme(darkTheme = false) {
         val navController = rememberNavController()
-        HomeScreen(paddingValues = PaddingValues(0.dp), navController = navController, viewModel = HomeViewModel(TestRepository()))
+        HomeScreen(paddingValues = PaddingValues(0.dp), navController = navController, viewModel = TestViewModel(TestRepository()))
     }
 }

@@ -6,6 +6,7 @@ import com.fisi.sisvita.data.model.Respuesta
 import com.fisi.sisvita.data.model.Test
 import com.fisi.sisvita.data.model.TestSubmission
 import com.fisi.sisvita.data.model.UserSession
+import com.fisi.sisvita.data.model.UserSession.testId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -17,8 +18,16 @@ import java.io.IOException
 
 class TestRepository {
     private val client = OkHttpClient()
+    // Cachés en memoria
+    private var cachedTests: List<Test>? = null
+    private val cachedPreguntas = mutableMapOf<Int, List<Pregunta>>()
+    private val cachedRespuestas = mutableMapOf<Int, List<Respuesta>>()
 
     suspend fun getTests(): List<Test> {
+        if (cachedTests != null) {
+            return cachedTests!! // Si los tests ya están en caché, se devuelven directamente
+        }
+
         return withContext(Dispatchers.IO) {
             val request = Request.Builder()
                 .url("https://sysvita-dswg13-1.onrender.com/tests")
@@ -44,6 +53,7 @@ class TestRepository {
                                 )
                                 tests.add(test)
                             }
+                            cachedTests = tests
                             return@withContext tests
                         }
                     }
@@ -55,9 +65,12 @@ class TestRepository {
         }
     }
 
-    suspend fun getPreguntas(): List<Pregunta> {
+    suspend fun getPreguntas(testId: Int): List<Pregunta> {
+        if (cachedPreguntas.containsKey(testId)) {
+            return cachedPreguntas[testId]!! // Si ya están en caché, devolver directamente
+        }
         return withContext(Dispatchers.IO) {
-            val testId = UserSession.testId.value ?: return@withContext emptyList()
+//            val testId = UserSession.testId.value ?: return@withContext emptyList()
             val request = Request.Builder()
                 .url("https://sysvita-dswg13-1.onrender.com/preguntas/$testId")
                 .get()
@@ -82,6 +95,7 @@ class TestRepository {
                                 )
                                 preguntas.add(pregunta)
                             }
+                            cachedPreguntas[testId] = preguntas
                             return@withContext preguntas
                         }
                     }
@@ -93,9 +107,12 @@ class TestRepository {
         }
     }
 
-    suspend fun getRespuestas(): List<Respuesta> {
+    suspend fun getRespuestas(testId: Int): List<Respuesta> {
+        if (cachedRespuestas.containsKey(testId)) {
+            return cachedRespuestas[testId]!! // Si ya están en caché, devolver directamente
+        }
         return withContext(Dispatchers.IO) {
-            val testId = UserSession.testId.value ?: return@withContext emptyList()
+//            val testId = UserSession.testId.value ?: return@withContext emptyList()
             val request = Request.Builder()
                 .url("https://sysvita-dswg13-1.onrender.com/respuestas/$testId")
                 .get()
@@ -120,6 +137,7 @@ class TestRepository {
                                 )
                                 respuestas.add(respuesta)
                             }
+                            cachedRespuestas[testId] = respuestas
                             return@withContext respuestas
                         }
                     }
@@ -176,6 +194,4 @@ class TestRepository {
             }
         }
     }
-
-
 }

@@ -134,6 +134,7 @@ fun LoginScreen(viewModel: LoginViewModel, onSignUp: () -> Unit) {
 @Composable
 fun ErrorDialog(onDismiss: () -> Unit) {
     AlertDialog(
+        modifier = Modifier.background(MaterialTheme.colorScheme.background),
         onDismissRequest = onDismiss,
         title = { Text("Error") },
         text = { Text("Usuario o contraseña incorrectas") },
